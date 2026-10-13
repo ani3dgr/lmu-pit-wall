@@ -458,16 +458,30 @@ def calibrar_jugador(sco, n_coches):
 def calibrar_clase(sco, n_coches):
     """Busca el campo de texto con la clase del coche (Hypercar / LMP2 / LMGT3...)."""
     CLASES = ("hyper", "lmp", "lmgt", "gte", "gt3", "gtp")
-    for off in range(0, SCO_STRIDE - 8):
+
+    def vale(off):
         try:
             vals = [txt(sco, SCO_BASE + v * SCO_STRIDE + off, 32) for v in range(n_coches)]
         except OSError:
-            continue
+            return False
         # el texto tiene que EMPEZAR donde empieza el campo: un offset una
         # posicion antes tambien contendria la palabra, precedida de basura
         if not all(v[:1].isalpha() for v in vals):
-            continue
-        if all(any(c in v.lower() for c in CLASES) for v in vals):
+            return False
+        # mVehicleName (36) tambien puede cumplirlo ("BMW GT3 Custom Team
+        # 2026 #397") y entonces cada modelo era una "clase": el 13/10/2026 en
+        # Paul Ricard el mapa daba a Manuel el puesto contando solo los coches
+        # con "GT3" en el modelo (11) en vez del de su clase (17). Una clase de
+        # verdad no lleva dorsal.
+        if any("#" in v for v in vals):
+            return False
+        return all(any(c in v.lower() for c in CLASES) for v in vals)
+
+    # primero el verificado en pista; buscar solo si el juego lo hubiera movido
+    if vale(OFF_CLASE):
+        return OFF_CLASE
+    for off in range(0, SCO_STRIDE - 8):
+        if vale(off):
             return off
     return None
 
