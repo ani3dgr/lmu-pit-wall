@@ -85,6 +85,8 @@ class Panel(base.Panel):
             return
         self._cuando = ahora
 
+        if self.modo_mover and (not datos or datos.get("falta")):
+            datos = _muestra()     # opciones abiertas sin carrera: para colocarlo
         lineas = self._lineas(datos)
         esc = max(0.5, float(self.cfg.get("estr_tam", 100)) / 100.0)
         lineas = self._partir(lineas, esc)
@@ -450,3 +452,49 @@ class Panel(base.Panel):
                 return T("est.nos_pasa") + cuando, ROJO, True
             return "", None, False
         return "", None, False
+
+
+def _muestra():
+    """
+    Lo que se ensena con las opciones abiertas si no hay carrera, para poder
+    colocar el panel y ver como queda (y para las capturas de la ficha).
+    """
+    m = clasificacion.marca_de
+
+    def coche(puesto, dorsal, piloto, marca, parar_en):
+        return {"puesto_clase": puesto, "dorsal": dorsal, "piloto": piloto,
+                "marca": m(marca), "clave": dorsal, "clase": "LMGT3",
+                "combustible": {"parar_en": parar_en, "quedan": parar_en - 52.0}}
+
+    yo = coche(3, "399", "(muestra) Nosotros", "Porsche 911 GT3 R", 58)
+    a = coche(1, "92", "(muestra) A", "Ferrari 296 GT3", 55)
+    b = coche(2, "21", "(muestra) B", "McLaren 720S", 59)
+    c = coche(4, "77", "(muestra) C", "BMW M4 GT3", 54)
+    d = coche(5, "54", "(muestra) D", "Lexus RC F GT3", 60)
+
+    def rival(f, dist, dr, paradas, neta, prev=None, vuelta=None):
+        return {"fila": f, "distancia": dist, "dif_ritmo": dr, "paradas": paradas,
+                "neta": neta, "prevision": prev, "vuelta": vuelta}
+
+    parada = {"total": 76.4, "parado": 39.1, "energia_s": 39.1, "ruedas": 0,
+              "ruedas_s": 0.0, "piloto": True, "piloto_s": 25.0, "reparar": "",
+              "frenos": False, "carril": 35.3, "extra_piloto": 2.0}
+    sp = {"puesto": 4, "delante": (-6.2, b), "detras": (2.1, c), "trafico": [c]}
+    ap = {"puesto": 3, "delante": (-3.4, b), "detras": (12.8, c), "trafico": [],
+          "vuelta": 58}
+    final = {"puesto": 3, "puesto_final": 2, "pasamos": 1, "nos_pasan": 0}
+    return {
+        "yo": yo, "falta": None, "restante": 7920.0, "horizonte": 1500.0,
+        "es_ciclo": True, "puesto": 3, "ritmo": 107.3, "paradas": 1,
+        "paradas_final": 3, "perdida": 76.4, "paradas_vistas": 12,
+        "parada": parada, "si_paramos": sp, "al_parar": ap, "final": final,
+        "puesto_final": 3, "pasamos": 1, "nos_pasan": 1,
+        "perdidas": {"92": 77.0, "21": 74.5, "77": 78.1, "54": 76.0},
+        "rivales": [
+            rival(a, -21.4, -0.3, 1, -19.0),
+            rival(b, -8.7, 0.6, 1, 2.6, "pasamos", "boxes"),
+            rival(c, 4.1, -0.4, 1, 6.3),
+            rival(d, 15.9, -0.9, 0, -0.5, "nos_pasa", 71),
+        ],
+    }
+

@@ -27,7 +27,7 @@ DIST = os.path.join(AQUI, "dist")
 BUILD = os.path.join(AQUI, "build")
 CARPETA_FINAL = os.path.join(DIST, "MapaLMU")
 
-VERSION = "1.11"
+VERSION = "1.11.1"
 
 # Lo que se copia al lado del .exe. Carpetas y archivos sueltos.
 #
