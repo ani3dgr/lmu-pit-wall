@@ -150,6 +150,241 @@ dentro. Si tienes dudas, pulsalo.
     Debajo esta la fluidez del mapa, que es lo que mas alivia si el
     juego va justo, y el boton (i) lo cuenta todo.
 
+  CLASIFICACION
+
+    Una fila por coche, en orden de posicion. La rayita de color de
+    la izquierda es la clase y nuestro coche va resaltado, tambien
+    en carreras por equipos cuando conduce el companero. Si hay mas
+    coches que filas, se ensenan los que van alrededor del nuestro.
+
+    LAS COLUMNAS se eligen abajo, en la lista: marca las que quieras
+    y ordenalas con Subir y Bajar. Lo que significa cada una:
+
+    POSICION Y COCHE
+    - P: puesto dentro de su clase.
+    - PG: puesto en la general, contando todas las clases.
+    - Clase: Hypercar, LMP2, GT3...
+    - Marca: una placa de color con las siglas de la marca del
+      coche.
+    - N.: el dorsal.
+    - Piloto: el que conduce ahora.
+    - Equipo: el nombre del equipo.
+    - Sal.: el puesto en el que salio en la parrilla.
+
+    TIEMPOS
+    - Mejor: la vuelta mas rapida del COCHE, de todos sus pilotos.
+      En morado, la mejor de su clase.
+    - Mejor pil.: la mejor del piloto que conduce ahora. La apunta
+      el mapa vuelta a vuelta, asi que solo cuenta las vueltas dadas
+      con el mapa abierto.
+    - Ultima: la ultima vuelta que ha cerrado.
+    - Media (v): el tiempo medio del piloto que conduce, desde que
+      se subio al coche, y entre parentesis con cuantas vueltas esta
+      hecha. Al cambiar de piloto vuelve a empezar. No cuenta las
+      vueltas de entrada y salida de boxes.
+    - Vuelta: el reloj de la vuelta que lleva ahora. BOXES si esta
+      en el garaje o entrando.
+    - S1, S2, S3: los sectores de su ultima vuelta. M.S1, M.S2,
+      M.S3: sus mejores sectores.
+
+    DISTANCIAS (en segundos, o en vueltas si le han doblado)
+    - Lider: con el primero de la general.
+    - Lid.cl.: con el primero de su clase.
+    - Delante: con el coche que va justo delante en la general.
+    - Del.cl.: con el que va justo delante en su clase.
+
+    CARRERA
+    - Vtas: vueltas completadas.
+    - Box: las veces que ha parado en boxes.
+    - Pen.: sanciones que tiene el coche (en rojo).
+    - Anul.: las vueltas anuladas del piloto que conduce, sobre las
+      que ha dado. En practicas y clasificacion; en carrera el juego
+      no anula, sanciona.
+    - Sanc.: las sanciones que le han caido al piloto que conduce.
+
+    NEUMATICOS
+    - Neum.: el compuesto que lleva puesto (B blanda, M media, D
+      dura, LL lluvia). Si delante y detras van distintos sale
+      'M/D'.
+    - V.neu: las vueltas que llevan esas ruedas.
+    - Juegos: los juegos nuevos que ha montado en la carrera,
+      contando los de salida, y entre parentesis los que le quedan
+      segun las ruedas que da el servidor para el garaje. Eso ultimo
+      es una cuenta nuestra: no sabe lo gastado en practicas o
+      clasificacion.
+    - '?' sale cuando no se puede saber: si se reinicia el juego a
+      media carrera, el juego solo conserva las paradas de nuestro
+      equipo.
+
+    COMBUSTIBLE
+    - Gas. y Ener.: lo que le queda de combustible y de energia
+      virtual.
+    - Gas./v y Ener./v: lo que gasta por vuelta, la media de sus
+      ultimas 5 vueltas sin repostar (sin contar las de boxes).
+    - Quedan: las vueltas que le quedan con lo que se le acabe antes
+      (casi siempre la energia). En amarillo por debajo de 4 y en
+      rojo por debajo de 2.
+    - Para v.: la vuelta en la que tiene que parar a repostar.
+    - 'calc...' sale mientras faltan vueltas para sacar la media:
+      despues de parar en boxes hacen falta un par de vueltas sin
+      repostar.
+
+    TODO SE GUARDA: cada vuelta de todos, tambien las anuladas, va a
+    la carpeta vueltas_carreras, un archivo por sesion que se abre
+    con Excel.
+
+    SCROLL: si la parrilla no cabe (baja 'Filas como mucho'), se
+    sube y se baja con la rueda del raton encima del panel. A los 30
+    segundos sin tocarla vuelve sola a nuestro coche, y con doble
+    clic al momento.
+
+    ESTIRAR: en la esquina de abajo a la derecha hay tres rayitas.
+    Arrastrando de ahi, de lado cambia el ancho (las letras no; su
+    tamano esta en Opciones) y de arriba abajo cuantas filas se ven.
+    Se guarda solo.
+
+  ESTRATEGIA
+
+    IMPORTANTE: todo lo de este panel son ESTIMACIONES. Se calcula
+    con lo que ha pasado hasta ahora (ritmo, gasto, paradas) y las
+    predicciones pueden cambiar en cualquier momento por cosas que
+    nadie controla: accidentes, banderas amarillas, coche de
+    seguridad, sanciones, averias, la lluvia, un error o un rival
+    que cambia de estrategia. Se corrige solo cada medio segundo.
+    Usalo como ayuda, no como verdad.
+
+    LAS LINEAS DE ARRIBA
+
+    - ESTRATEGIA y quedan: el tiempo que falta de carrera.
+
+    - NOSOTROS: puesto en la clase, ritmo (la mediana de las ultimas
+      10 vueltas sin boxes) y en que vuelta toca repostar, con las
+      vueltas que da la energia que queda.
+
+    - PROXIMA PARADA (en amarillo): los segundos que nos va a costar
+      en total la siguiente parada, desde que entramos al carril
+      hasta que volvemos a la pista, comparado con haber seguido en
+      pista. Sale de lo marcado en el menu de boxes del juego. Si no
+      hay menu, sale la media de las paradas de la clase.
+
+    - La linea de debajo es el desglose:
+      - Paradas hasta el final: cuantas nos faltan.
+      - parado: los segundos quietos en el box. Se calcula como sera
+        de verdad, con el deposito casi vacio: la energia (el juego
+        llena un 2,5 % por segundo, unos 39 s de vacio a lleno), las
+        ruedas (12 s las cuatro), reparar y frenos van uno detras de
+        otro. El cambio de piloto (25 s) va a la vez que lo demas y
+        no suma, salvo que sea lo mas largo.
+      - carril: lo que se pierde entrando y saliendo por el carril
+        de boxes, medido con las paradas de todos los de nuestra
+        clase en esta carrera.
+      - cambio de piloto: lo que se pierde de mas cuando cambia el
+        piloto, tambien medido.
+      - Al final, la suma: los segundos en total.
+
+    - SI PARAMOS AHORA: en que puesto saldriamos, quien quedaria
+      justo delante y detras y a cuantos segundos, y si salimos
+      metidos en trafico (TRAFICO y los dorsales: un coche de
+      cualquier clase a menos de 3 s de donde salimos) o con la
+      pista libre.
+
+    - AL PARAR EN LA v.X: lo mismo, pero en la vuelta en la que toca
+      parar. Proyecta hasta esa vuelta el ritmo de cada uno y cuenta
+      quien habra parado ya antes que nosotros. Cuanto mas lejos,
+      menos fiable.
+
+    - TRAS LAS PARADAS (o EN X MIN): el puesto que tendriamos cuando
+      todos los de la clase hayan hecho su proxima parada, entre
+      parentesis lo que ganamos (+) o perdemos (-), y a cuantos
+      adelantamos y cuantos nos adelantan. Es lo justo para
+      comparar: a media hora vista, uno que para dentro de diez
+      minutos saldria 'adelantado' aunque nosotros vayamos a parar a
+      los cuarenta. Esperando a que paren todos, la parada se la
+      come cada uno y queda lo de verdad: el ritmo y quien aguanta
+      mas con un deposito. En el muro lo llaman la posicion neta. En
+      Opciones se puede cambiar por un plazo fijo de minutos (0 =
+      tras las paradas, lo recomendado).
+
+    - AL FINAL: lo mismo hasta la bandera. Es mucho menos fiable: a
+      4 horas vista, un segundo por vuelta son dos minutos al final.
+
+    - SIN MAS PARADAS: cuando ya no nos queda ninguna parada hasta
+      el final, lo de parar desaparece y sale en que puesto llegamos
+      y a cuantos segundos llegara el de delante y el de detras, con
+      las paradas que les falten a ellos ya contadas.
+
+    LA TABLA (un coche de nuestra clase por fila)
+
+    - P, Marca, N., Piloto: puesto en la clase, marca del coche,
+      dorsal y quien conduce.
+    - Dist.: segundos con nosotros ahora mismo. Negativo = va por
+      delante.
+    - Ritmo: lo que va mas lento (+) o mas rapido (-) que nosotros
+      por vuelta. En rojo si es mas rapido.
+    - Pillar: en cuantas vueltas lo pillamos (si va delante y vamos
+      mas rapido, en verde) o nos pilla (si va detras y va mas
+      rapido, en rojo). Es en pista, sin contar paradas. Vacio si la
+      distancia no se cierra.
+    - En: lo mismo que Pillar, en tiempo.
+    - Para: la vuelta en la que tiene que parar a repostar, por la
+      energia que le queda y lo que gasta. En amarillo si para antes
+      que nosotros.
+    - Parada: lo que le costara esa parada: carril + la energia que
+      le hace falta para llegar al final (o el deposito entero) +
+      ruedas como las nuestras.
+    - Paradas: las que le quedan en el plazo elegido. En amarillo si
+      son distintas de las nuestras.
+    - Neta: la distancia contando las paradas que le quedan a el y a
+      nosotros. Si cambia de lado respecto a la de ahora, en verde
+      (le pasamos) o en rojo (nos pasa).
+    - Prevision: LE PASAMOS o NOS PASA, y en que vuelta; '(boxes)'
+      si es en las paradas.
+
+    LO QUE NO PUEDE SABER: si un rival cambiara ruedas o piloto, o
+    reparara (se supone que hace lo mismo que nosotros), ni nada de
+    lo que dice el aviso de arriba. Si se reinicia el juego a media
+    carrera, solo se conservan las paradas de nuestro equipo.
+
+    TODO QUEDA APUNTADO en vueltas_carreras: prediccion (lo que
+    predecia, minuto a minuto), boxes_menu (cada combinacion del
+    menu con lo que dice el juego) y boxes_paradas (cada parada
+    nuestra: lo previsto contra lo real).
+
+    ESTIRAR: en la esquina de abajo a la derecha hay tres rayitas.
+    Arrastrando de ahi, de lado cambia el ancho (las letras no; su
+    tamano esta en Opciones) y de arriba abajo cuantas filas se ven.
+    Se guarda solo.
+
+  FRENOS
+
+    Para cada disco: el grosor que le queda en milimetros, una barra
+    que va de nuevo (llena) a punto de romperse (vacia), lo que se
+    gasta por hora de conduccion y cuanto le queda en tiempo y en
+    vueltas.
+
+    Debajo: el reparto de frenada en directo, como estan los
+    conductos de freno y si el cambio de frenos esta pedido en el
+    menu de boxes. Arriba, lo que cuesta cambiarlos en la parada.
+
+    POR QUE HACE FALTA
+
+    En las 24 h de Le Mans un disco se gasto del todo y ese freno
+    dejo de frenar de golpe: el coche se iba hacia un lado en cada
+    frenada. El juego no aviso de ninguna manera. El disco se gasta
+    poco a poco, pero la rotura es de golpe: hasta ese momento frena
+    bien.
+
+    DE DONDE SALE
+
+    De la propia interfaz del juego, que se le pregunta cada dos
+    segundos. El grosor al que se rompe un disco no lo da el juego:
+    de salida se usan unos 25 mm en Hypercar y LMP2 y unos 30 en
+    GT3, y cada vez que se te rompe uno el programa apunta a que
+    grosor fue y usa ese a partir de entonces.
+
+    Con discos nuevos hacen falta unos minutos rodando para medir lo
+    que se gastan; mientras tanto pone "midiendo".
+
   CLIMA
     Un panel aparte, como la bola, con dos partes.
 

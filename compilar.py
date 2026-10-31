@@ -27,7 +27,7 @@ DIST = os.path.join(AQUI, "dist")
 BUILD = os.path.join(AQUI, "build")
 CARPETA_FINAL = os.path.join(DIST, "MapaLMU")
 
-VERSION = "1.10.5"
+VERSION = "1.11"
 
 # Lo que se copia al lado del .exe. Carpetas y archivos sueltos.
 #
@@ -72,7 +72,8 @@ BASURA = ("__pycache__", ".pyc", ".bak", ".antes", ".orig",
 # el programa, y encima puede que los haya pagado.
 MIO = ["sesiones", "escaneos", "copias_reglajes", "mapa_config.json",
        "ruta_juego.txt", "idioma.txt", "catalogo_coches.json",
-       "coches.json", "historial_reglajes.json", "fichas_coches.json"]
+       "coches.json", "historial_reglajes.json", "fichas_coches.json",
+       "frenos_rotura.json", "frenos_registro.csv", "vueltas_carreras"]
 
 GUARDADO = os.path.join(AQUI, ".mio_mientras_compilo")
 

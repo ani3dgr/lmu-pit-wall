@@ -52,6 +52,9 @@ TEL_RUEDA0 = 848        # primera rueda; orden del/izq, del/der, tras/izq, tras/
 TEL_RUEDA_STRIDE = 260
 TEL_SUSPF = 16          # mSuspForce, en newtons: la carga de esa esquina
 TEL_CARGA = 104         # mTireLoad. NO USAR: LMU lo deja a cero casi siempre
+TEL_FRENO_T = 24        # mBrakeTemp de esa rueda, en grados centigrados
+TEL_PEDAL_FRENO = 428   # mFilteredBrake, de 0 a 1
+TEL_REPARTO = 664       # mRearBrakeBias: la parte de la frenada que va DETRAS
 
 OFF_TRACK = 12          # nombre del circuito (64 bytes)
 OFF_NUMVEH = 116        # numero de coches (int)
@@ -604,6 +607,12 @@ class Scoring:
                                      for i in range(3))) * 3.6,
                 "cargas": cargas,          # del izq, del der, tras izq, tras der
                 "combustible": d(self.lmu, b + TEL_FUEL),
+                # Temperatura de cada disco: el detector de frenos rotos la
+                # usa de respaldo cuando la API del juego no contesta.
+                "frenos_c": [d(self.lmu, b + TEL_RUEDA0 + r * TEL_RUEDA_STRIDE
+                               + TEL_FRENO_T) for r in range(4)],
+                "pedal_freno": d(self.lmu, b + TEL_PEDAL_FRENO),
+                "reparto_tras": d(self.lmu, b + TEL_REPARTO),
             }
         except (OSError, struct.error, ValueError):
             return None

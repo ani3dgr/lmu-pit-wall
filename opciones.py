@@ -64,10 +64,13 @@ class Opciones:
         pista = self._grupo(cuaderno, T("grupo.pista"))
         self._pestana_fuerzas(pista)
         self._pestana_clima(pista)
+        self._pestana_frenos(pista)
         self._pestana_avisos(pista)
 
         tiempos = self._grupo(cuaderno, T("grupo.tiempos"))
         self._pestana_tiempos(tiempos)
+        self._pestana_clasificacion(tiempos)
+        self._pestana_estrategia(tiempos)
         self._pestana_trazadas(tiempos)
 
         biblioteca = self._grupo(cuaderno, T("grupo.biblioteca"))
@@ -571,6 +574,157 @@ class Opciones:
         combo.grid(row=fila[0], column=1, sticky="w", padx=4, pady=1)
         combo.bind("<<ComboboxSelected>>", cambio)
         fila[0] += 1
+
+    def _pestana_frenos(self, cuaderno):
+        """
+        El panel de los frenos y sus avisos, juntos.
+
+        Los avisos van aqui y no en la hoja de Avisos porque salen del mismo
+        dato que el panel (el grosor de los discos) y quien los configure
+        quiere ver las dos cosas a la vez.
+        """
+        m, fila = self._hoja(cuaderno, T("tab.frenos"), "frenos")
+        ttk.Label(m, justify="left", foreground="#555", wraplength=430,
+                  text=T("frn.nota")).grid(row=fila[0], column=0, columnspan=3,
+                                           sticky="w", pady=(0, 8))
+        fila[0] += 1
+
+        self._titulo(m, fila, T("frn.tit_panel"))
+        self._interruptor(m, fila, T("frn.opt.ver"), "frenos_ver")
+        self._deslizador(m, fila, T("clima.opt.tam"), "frenos_tam", 60, 220)
+        self._deslizador(m, fila, T("asp.opacidad"), "frenos_opacidad", 0.2, 1.0, 2)
+        self._interruptor(m, fila, T("clima.opt.fondo"), "frenos_fondo")
+        self._color(m, fila, T("clima.opt.color_fondo"), "frenos_color_fondo")
+        self._color(m, fila, T("clima.opt.color_texto"), "frenos_color_texto")
+
+        self._titulo(m, fila, T("frn.titulo"))
+        self._interruptor(m, fila, T("frn.activado"), "frenos_aviso")
+        self._deslizador(m, fila, T("frn.minutos"), "frenos_aviso_min", 15, 180)
+        ttk.Label(m, foreground="#666", justify="left", wraplength=430,
+                  text=T("frn.nota_sonido")).grid(
+            row=fila[0], column=0, columnspan=3, sticky="w", padx=(20, 0))
+        fila[0] += 1
+
+        ttk.Label(m, foreground="#b03a2e", justify="left", wraplength=430,
+                  font=("Segoe UI", 9, "bold"),
+                  text=T("frn.colocar")).grid(
+            row=fila[0], column=0, columnspan=3, sticky="w", pady=(12, 0))
+        fila[0] += 1
+
+    def _pestana_clasificacion(self, cuaderno):
+        """El panel con los tiempos de todos los coches (clasificacion_gui.py)."""
+        m, fila = self._hoja(cuaderno, T("tab.clasificacion"), "clasificacion")
+        ttk.Label(m, justify="left", foreground="#555", wraplength=430,
+                  text=T("cla.nota")).grid(row=fila[0], column=0, columnspan=3,
+                                           sticky="w", pady=(0, 8))
+        fila[0] += 1
+
+        self._titulo(m, fila, T("cla.tit_panel"))
+        self._interruptor(m, fila, T("cla.opt.ver"), "tabla_ver")
+        self._interruptor(m, fila, T("cla.opt.solo_clase"), "tabla_solo_clase")
+        self._deslizador(m, fila, T("cla.opt.filas"), "tabla_filas", 5, 80)
+        self._deslizador(m, fila, T("clima.opt.tam"), "tabla_tam", 60, 220)
+        self._deslizador(m, fila, T("asp.opacidad"), "tabla_opacidad", 0.2, 1.0, 2)
+        self._interruptor(m, fila, T("clima.opt.fondo"), "tabla_fondo")
+        self._color(m, fila, T("clima.opt.color_fondo"), "tabla_color_fondo")
+        self._color(m, fila, T("clima.opt.color_texto"), "tabla_color_texto")
+
+        self._titulo(m, fila, T("cla.tit_columnas"))
+        self._elegir_columnas(m, fila)
+
+        ttk.Label(m, foreground="#b03a2e", justify="left", wraplength=430,
+                  font=("Segoe UI", 9, "bold"),
+                  text=T("cla.colocar")).grid(
+            row=fila[0], column=0, columnspan=3, sticky="w", pady=(12, 0))
+        fila[0] += 1
+
+    def _pestana_estrategia(self, cuaderno):
+        """El panel de prediccion de carrera (estrategia_gui.py)."""
+        m, fila = self._hoja(cuaderno, T("tab.estrategia"), "estrategia")
+        ttk.Label(m, justify="left", foreground="#555", wraplength=430,
+                  text=T("est.nota")).grid(row=fila[0], column=0, columnspan=3,
+                                           sticky="w", pady=(0, 8))
+        fila[0] += 1
+        self._titulo(m, fila, T("est.tit_panel"))
+        self._interruptor(m, fila, T("est.opt.ver"), "estr_ver")
+        self._deslizador(m, fila, T("est.opt.minutos"), "estr_minutos", 0, 120)
+        self._deslizador(m, fila, T("cla.opt.filas"), "estr_filas", 5, 40)
+        self._deslizador(m, fila, T("clima.opt.tam"), "estr_tam", 60, 220)
+        self._deslizador(m, fila, T("asp.opacidad"), "estr_opacidad", 0.2, 1.0, 2)
+        self._interruptor(m, fila, T("clima.opt.fondo"), "estr_fondo")
+        self._color(m, fila, T("clima.opt.color_fondo"), "estr_color_fondo")
+        self._color(m, fila, T("clima.opt.color_texto"), "estr_color_texto")
+        ttk.Label(m, foreground="#b03a2e", justify="left", wraplength=430,
+                  font=("Segoe UI", 9, "bold"),
+                  text=T("est.colocar")).grid(
+            row=fila[0], column=0, columnspan=3, sticky="w", pady=(12, 0))
+        fila[0] += 1
+
+    def _elegir_columnas(self, m, fila):
+        """
+        Que columnas lleva el panel de clasificacion y en que orden.
+
+        Una lista con todas: la marca de la izquierda dice si se ve, y con los
+        botones se pone o se quita y se sube o se baja. El panel cambia en el
+        momento, asi que se ve como queda mientras se elige.
+        """
+        import clasificacion_gui
+        cols = clasificacion_gui.columnas(self.cfg)
+
+        ttk.Label(m, foreground="#666", justify="left", wraplength=430,
+                  text=T("cla.nota_columnas")).grid(
+            row=fila[0], column=0, columnspan=3, sticky="w")
+        fila[0] += 1
+
+        marco = ttk.Frame(m)
+        marco.grid(row=fila[0], column=0, columnspan=3, sticky="w", pady=(4, 0))
+        fila[0] += 1
+        lista = tk.Listbox(marco, height=12, width=38, activestyle="none",
+                           exportselection=False, font=("Segoe UI", 9))
+        barra = ttk.Scrollbar(marco, orient="vertical", command=lista.yview)
+        lista.configure(yscrollcommand=barra.set)
+        lista.grid(row=0, column=0, rowspan=4, sticky="ns")
+        barra.grid(row=0, column=1, rowspan=4, sticky="ns")
+
+        def rellenar(elegida=None):
+            lista.delete(0, "end")
+            for clave, ver in cols:
+                lista.insert("end", ("☑  " if ver else "☐  ")
+                             + T("cla.nom." + clave))
+            if elegida is not None:
+                lista.selection_set(elegida)
+                lista.see(elegida)
+
+        def guardar(elegida):
+            self.cfg["tabla_columnas"] = [list(par) for par in cols]
+            self.guardar(self.cfg)
+            rellenar(elegida)
+
+        def cual():
+            sel = lista.curselection()
+            return sel[0] if sel else None
+
+        def poner_quitar(_=None):
+            i = cual()
+            if i is not None:
+                cols[i][1] = not cols[i][1]
+                guardar(i)
+
+        def mover(paso):
+            i = cual()
+            if i is None or not 0 <= i + paso < len(cols):
+                return
+            cols[i], cols[i + paso] = cols[i + paso], cols[i]
+            guardar(i + paso)
+
+        lista.bind("<Double-Button-1>", poner_quitar)
+        ttk.Button(marco, text=T("cla.btn.ver"), command=poner_quitar).grid(
+            row=0, column=2, sticky="we", padx=(8, 0))
+        ttk.Button(marco, text=T("cla.btn.subir"), command=lambda: mover(-1)).grid(
+            row=1, column=2, sticky="we", padx=(8, 0))
+        ttk.Button(marco, text=T("cla.btn.bajar"), command=lambda: mover(1)).grid(
+            row=2, column=2, sticky="we", padx=(8, 0))
+        rellenar()
 
     def _pestana_avisos(self, cuaderno):
         """

@@ -138,6 +138,45 @@ POR_DEFECTO = {
     "aviso_volumen": 60,
     "aviso_sonido": "doble.wav",
     "aviso_texto": "",
+    # El aviso de los frenos (frenos.py): roto, o que toca cambiarlos.
+    "frenos_aviso": True,
+    "frenos_aviso_min": 60,
+    "frenos_cartel_x": 700,
+    "frenos_cartel_y": 190,
+    # El panel de los frenos (frenos_gui.py). Apagado de salida, como el clima.
+    "frenos_ver": False,
+    "frenos_panel_x": 60,
+    "frenos_panel_y": 480,
+    "frenos_tam": 100,
+    "frenos_opacidad": 0.95,
+    "frenos_fondo": True,
+    "frenos_color_fondo": "#0d1116",
+    "frenos_color_texto": "#ffffff",
+    # El panel de clasificacion (clasificacion_gui.py): los tiempos de todos.
+    "tabla_ver": False,
+    "tabla_x": 60,
+    "tabla_y": 200,
+    "tabla_tam": 100,
+    "tabla_filas": 60,
+    "tabla_ancho": 0,               # 0 = el de la tabla; si no, estirado a mano
+    "tabla_columnas": None,         # None: las de salida (clasificacion_gui)
+    "tabla_solo_clase": False,
+    "tabla_opacidad": 0.95,
+    "tabla_fondo": True,
+    "tabla_color_fondo": "#0d1116",
+    "tabla_color_texto": "#ffffff",
+    # El panel de estrategia (estrategia_gui.py): la prediccion de carrera.
+    "estr_ver": False,
+    "estr_x": 60,
+    "estr_y": 300,
+    "estr_tam": 100,
+    "estr_filas": 15,
+    "estr_ancho": 0,
+    "estr_minutos": 0,              # 0 = tras el ciclo de paradas
+    "estr_opacidad": 0.95,
+    "estr_fondo": True,
+    "estr_color_fondo": "#0d1116",
+    "estr_color_texto": "#ffffff",
     "yo_anillo": True,
     # La bola de reparto de carga (el circulo con el punto que se mueve)
     "bola_ver": False,
@@ -638,6 +677,10 @@ class Mapa:
         self._fuentes = {}
         self.comparador = None
         self.avisador = None
+        self.avisa_frenos = None
+        self.panel_frenos = None
+        self.tabla = None
+        self.estrategia = None
         self.bola = None
         self._bola_pos = [0.0, 0.0]     # el punto ya suavizado
         self.clima = None
@@ -996,6 +1039,9 @@ class Mapa:
             coches = self.fuente.leer()
             self._llevar_bola()
             self._llevar_clima()
+            self._llevar_frenos(coches)
+            self._llevar_tabla(coches)
+            self._llevar_estrategia(coches)
             self._restaurar_elegido(coches)
             self._llevar_comparador(coches)
             if self.visible and self._toca_dibujar():
@@ -1124,6 +1170,14 @@ class Mapa:
         self.modo_mover = False
         if self.avisador is not None:
             self.avisador.colocar(False)
+        if self.avisa_frenos is not None:
+            self.avisa_frenos.colocar(False)
+        if self.panel_frenos is not None:
+            self.panel_frenos.colocar(False)
+        if self.tabla is not None:
+            self.tabla.colocar(False)
+        if self.estrategia is not None:
+            self.estrategia.colocar(False)
         if self.bola is not None:
             self.bola.colocar(False)
         if self.clima is not None:
@@ -1174,6 +1228,108 @@ class Mapa:
         # se van a la derecha. Comprobado con los datos de Daytona.
         x, y = self._suavizar(tele["g_lateral"] / escala, tele["g_larga"] / escala)
         self.bola.pintar(x, y, reparto_de(tele["cargas"]))
+
+    def _llevar_frenos(self, coches):
+        """
+        El aviso de freno roto o gastado (ver frenos.py).
+
+        Va aunque el mapa este escondido con F9, como el de coche parado: un
+        freno que se rompe no espera a que mires el mapa.
+        """
+        ver_panel = self.cfg.get("frenos_ver", False)
+        if self.avisa_frenos is None:
+            if not self.cfg.get("frenos_aviso", True) and not ver_panel:
+                return
+            import aviso_gui
+            self.avisa_frenos = aviso_gui.MotorFrenos(self.root, self.cfg,
+                                                      guardar_config)
+            self.avisa_frenos.colocar(self.modo_mover)
+        yo = next((c for c in (coches or []) if c.get("es_yo")), None)
+        tele = None
+        if not getattr(self.fuente, "congelado", False):
+            tele = getattr(self.fuente, "tele", None)
+        self.avisa_frenos.latido(tele, yo, getattr(self.fuente, "conduzco", True))
+
+        if self.panel_frenos is None:
+            if not ver_panel:
+                return
+            import frenos_gui
+            self.panel_frenos = frenos_gui.Panel(self.root, self.cfg, guardar_config)
+            self.panel_frenos.colocar(self.modo_mover)
+        if self.modo_mover:
+            return                      # con opciones abiertas, la muestra
+        if not ver_panel:
+            self.panel_frenos.esconder()
+            return
+        import frenos
+        # Lo que dura una vuelta, para pasar los minutos que quedan a vueltas:
+        # la ultima, y si aun no hay, la mejor.
+        vuelta = 0.0
+        if yo:
+            vuelta = yo.get("ultima") or 0.0
+            if not vuelta or vuelta <= 0:
+                vuelta = yo.get("mejor") or 0.0
+        vigia = self.avisa_frenos.vigia
+        fichas = vigia.fichas(frenos.discos.mm(), frenos.familia_de(yo), vuelta)
+        reparto = None
+        if tele and tele.get("reparto_tras") is not None:
+            reparto = 1.0 - tele["reparto_tras"]
+        self.panel_frenos.pintar(fichas, frenos.discos.extra(), reparto)
+
+    def _llevar_tabla(self, coches):
+        """
+        Refresca el panel de clasificacion (ver clasificacion.py).
+
+        Los tiempos los trae de la API del juego un hilo aparte; aqui solo se
+        recogen. Nuestro coche se reconoce por el que lleva el mapa, que en
+        carreras por equipos sigue siendo el nuestro aunque conduzca otro.
+        """
+        if not self.cfg.get("tabla_ver", False) and self.tabla is None:
+            return
+        if self.tabla is None:
+            import clasificacion_gui
+            self.tabla = clasificacion_gui.Panel(self.root, self.cfg, guardar_config)
+            self.tabla.colocar(self.modo_mover)
+        # Con las opciones abiertas se sigue pintando: la carrera de verdad si
+        # la hay, para ver como quedan las columnas que se van eligiendo.
+        if not self.cfg.get("tabla_ver", False) and not self.modo_mover:
+            self.tabla.esconder()
+            return
+        import clasificacion
+        yo = next((c for c in (coches or []) if c.get("es_yo")), None)
+        self.tabla.pintar(clasificacion.tabla.filas(
+            yo, self.cfg.get("tabla_solo_clase", False)))
+
+    def _llevar_estrategia(self, coches):
+        """
+        Refresca el panel de estrategia (ver estrategia.py).
+
+        Saca sus cuentas de lo mismo que la clasificacion (clasificacion.tabla)
+        y solo dos veces por segundo: no cambia mas deprisa.
+        """
+        if not self.cfg.get("estr_ver", False) and self.estrategia is None:
+            return
+        if self.estrategia is None:
+            import estrategia_gui
+            self.estrategia = estrategia_gui.Panel(self.root, self.cfg, guardar_config)
+            self.estrategia.colocar(self.modo_mover)
+        if not self.cfg.get("estr_ver", False) and not self.modo_mover:
+            self.estrategia.esconder()
+            return
+        ahora = time.monotonic()
+        if (ahora - getattr(self, "_estr_cuando", 0.0) < 0.5
+                and not self.estrategia.estirando):
+            return
+        self._estr_cuando = ahora
+        import clasificacion
+        import estrategia
+        yo = next((c for c in (coches or []) if c.get("es_yo")), None)
+        filas = clasificacion.tabla.filas(yo, False)
+        datos = estrategia.calcular_todo(clasificacion.tabla, filas,
+                                         int(self.cfg.get("estr_minutos", 0)))
+        estrategia.apuntar(datos)
+        estrategia.vigilar_paradas(clasificacion.tabla, datos)
+        self.estrategia.pintar(datos, forzar=True)
 
     def _llevar_clima(self):
         """
@@ -1327,6 +1483,14 @@ class Mapa:
         self.modo_mover = True
         if self.avisador is not None:
             self.avisador.colocar(True)
+        if self.avisa_frenos is not None:
+            self.avisa_frenos.colocar(True)
+        if self.panel_frenos is not None:
+            self.panel_frenos.colocar(True)
+        if self.tabla is not None:
+            self.tabla.colocar(True)
+        if self.estrategia is not None:
+            self.estrategia.colocar(True)
         if self.bola is not None:
             self.bola.colocar(True)
         if self.clima is not None:

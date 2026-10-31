@@ -65,3 +65,9 @@ catalogo_coches.json
 #   coches.json  la tabla de equipo -> marca y modelo
 registro_clima.txt
 .mio_mientras_compilo/
+
+# Lo que apuntan los frenos, la clasificacion y la estrategia en cada carrera:
+# es de quien corre (y lleva nombres de otros pilotos).
+frenos_rotura.json
+frenos_registro.csv
+vueltas_carreras/

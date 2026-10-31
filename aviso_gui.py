@@ -114,9 +114,14 @@ class Cartel:
     una ventana retirada de la pantalla.
     """
 
-    def __init__(self, raiz, cfg, guardar):
+    def __init__(self, raiz, cfg, guardar, sitio="aviso", muestra=None):
         self.cfg = cfg
         self.guardar = guardar
+        # Donde se guarda su posicion (sitio_x / sitio_y en la configuracion).
+        # El de coche parado es "aviso"; el de los frenos tiene la suya, para
+        # que no salgan los dos uno encima del otro.
+        self.sitio = sitio
+        self.muestra = muestra or T("avi.muestra")
         self.visible = False
         self.arrastre = None
         self.modo_mover = False
@@ -141,9 +146,10 @@ class Cartel:
     def _arrastrar(self, e):
         if not self.arrastre:
             return
-        self.cfg["aviso_x"] += e.x - self.arrastre[0]
-        self.cfg["aviso_y"] += e.y - self.arrastre[1]
-        self.v.geometry("+%d+%d" % (self.cfg["aviso_x"], self.cfg["aviso_y"]))
+        self.cfg[self.sitio + "_x"] += e.x - self.arrastre[0]
+        self.cfg[self.sitio + "_y"] += e.y - self.arrastre[1]
+        self.v.geometry("+%d+%d" % (self.cfg[self.sitio + "_x"],
+                                    self.cfg[self.sitio + "_y"]))
         self.guardar(self.cfg)
 
     def colocar(self, moviendo):
@@ -156,7 +162,7 @@ class Cartel:
         """
         self.modo_mover = moviendo
         if moviendo:
-            self._pintar(T("avi.muestra"), muestra=True,
+            self._pintar(self.muestra, muestra=True,
                          lado="izq" if self.cfg.get("aviso_flecha", True) else None)
         elif not self.visible:
             self.esconder()
@@ -179,9 +185,14 @@ class Cartel:
         self.visible = False
         self.v.withdraw()
 
-    def _pintar(self, texto, muestra=False, lado=None):
+    def mostrar_texto(self, texto, color=None):
+        """Ensena un texto cualquiera (lo usa el aviso de los frenos)."""
+        self._pintar(texto, color=color)
+        self.visible = True
+
+    def _pintar(self, texto, muestra=False, lado=None, color=None):
         tam = int(self.cfg.get("aviso_tam", 26))
-        color = self.cfg.get("aviso_color", "#ff2d2d")
+        color = color or self.cfg.get("aviso_color", "#ff2d2d")
         fuente = ("Segoe UI", tam, "bold")
 
         # El lado del coche parado: una flecha AMARILLA delante del texto si
@@ -224,7 +235,8 @@ class Cartel:
             x += w + hueco
 
         self.v.geometry("%dx%d+%d+%d" % (ancho, alto,
-                                         self.cfg["aviso_x"], self.cfg["aviso_y"]))
+                                         self.cfg[self.sitio + "_x"],
+                                         self.cfg[self.sitio + "_y"]))
         self.v.deiconify()
         self.v.lift()
 
@@ -261,6 +273,91 @@ class Motor:
                 tocar(self.cfg.get("aviso_sonido", "doble.wav"),
                       self.cfg.get("aviso_volumen", 60),
                       self.cfg.get("aviso_sonar", True))
+        else:
+            self.cartel.esconder()
+
+    def colocar(self, moviendo):
+        self.cartel.colocar(moviendo)
+
+
+NARANJA = "#ff9f0a"
+SEGUNDOS_CAMBIAR = 12       # lo que se queda el aviso de cambiar frenos
+
+
+class MotorFrenos:
+    """
+    El aviso de los frenos: el vigia de frenos.py, su propio cartel y el sonido.
+
+    Dos avisos distintos:
+      - FRENO ROTO, en rojo y con la alarma. Se queda puesto hasta entrar en
+        boxes: con un freno sin frenar no hay nada mas importante que ver.
+      - CAMBIAR FRENOS, en naranja. Sale doce segundos al saltar, y otra vez
+        cada vez que sales de boxes sin haberlos cambiado. No se queda fijo:
+        avisa con tiempo de sobra y no hace falta tenerlo delante toda la
+        tanda.
+    """
+
+    def __init__(self, raiz, cfg, guardar):
+        import frenos
+        self.frenos = frenos
+        self.cfg = cfg
+        self.vigia = frenos.Vigia()
+        self.cartel = Cartel(raiz, cfg, guardar, sitio="frenos_cartel",
+                             muestra=T("frn.muestra"))
+        self.nivel = None
+        self.hasta = 0.0
+        self.en_boxes = None
+        self._modelos = {}
+
+    def _modelo(self, yo):
+        """
+        'Toyota GR010', 'BMW M4 LMGT3'... El grosor de rotura se aprende por
+        modelo. Se guarda en memoria porque buscarlo en el catalogo cuesta y
+        esto se llama veinte veces por segundo.
+        """
+        if not yo:
+            return ""
+        clave = (yo.get("vehiculo"), yo.get("clase"), yo.get("codigo"))
+        if clave not in self._modelos:
+            try:
+                import coches
+                self._modelos[clave] = coches.texto(*clave)
+            except Exception:
+                self._modelos[clave] = ""
+        return self._modelos[clave]
+
+    def latido(self, tele, yo, conduzco):
+        # El vigia trabaja SIEMPRE, aunque el aviso este apagado: el panel de
+        # los frenos saca de el lo que se gasta cada disco.
+        en_boxes = bool((yo or {}).get("en_boxes"))
+        res = self.vigia.mirar(self.frenos.discos.mm(), tele,
+                               self.frenos.familia_de(yo),
+                               self._modelo(yo),
+                               en_boxes, conduzco,
+                               float(self.cfg.get("frenos_aviso_min", 60)))
+        ahora = time.monotonic()
+        nivel = res["nivel"] if res else None
+        if not self.cfg.get("frenos_aviso", True):
+            nivel = None
+        sale_de_boxes = self.en_boxes and not en_boxes
+        self.en_boxes = en_boxes
+        if nivel != self.nivel:
+            self.nivel = nivel
+            if nivel:
+                self.hasta = ahora + (1e9 if nivel == "roto" else SEGUNDOS_CAMBIAR)
+                tocar("alarma.wav" if nivel == "roto"
+                      else self.cfg.get("aviso_sonido", "doble.wav"),
+                      self.cfg.get("aviso_volumen", 60),
+                      self.cfg.get("aviso_sonar", True))
+        elif nivel and sale_de_boxes:
+            self.hasta = ahora + SEGUNDOS_CAMBIAR
+        if nivel and ahora < self.hasta and not en_boxes:
+            ruedas = T("frn.ruedas").split("|")
+            rueda = ruedas[res["rueda"]] if len(ruedas) == 4 else ""
+            if nivel == "roto":
+                self.cartel.mostrar_texto(T("frn.roto") % rueda)
+            else:
+                self.cartel.mostrar_texto(T("frn.cambiar"), NARANJA)
         else:
             self.cartel.esconder()
 

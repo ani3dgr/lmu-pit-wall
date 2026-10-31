@@ -70,6 +70,38 @@ Es gratuito. Úsalo y pásalo a quien quieras.
   gomas: eso la pantalla del juego no lo da. Si viene agua y aún no ha llegado,
   abajo dice cuánto falta. Ojo: es el pronóstico **del servidor en el que
   estás**, así que para ver el de tu carrera hay que estar conectado a ella.
+- **Clasificación en directo** *(nueva en la 1.11)*: una tabla con todos los
+  coches y **28 columnas a elegir y ordenar**: puesto en la clase y en la
+  general, marca, piloto, mejor vuelta del coche y del piloto, media del relevo,
+  sectores, distancias, paradas, sanciones, neumáticos (compuesto, vueltas y
+  juegos usados) y **combustible y energía de todos**: lo que les queda, lo que
+  gastan por vuelta y **en qué vuelta tienen que parar**. Se estira desde la
+  esquina y se desplaza con la rueda del ratón. Cada vuelta de cada coche se
+  guarda en un archivo que se abre con Excel.
+- **Panel de estrategia** *(nuevo en la 1.11)*: lo que pregunta un equipo
+  desde el muro. **Cuánto nos va a costar la próxima parada** con lo marcado en
+  el menú de boxes (desglosado: energía, ruedas, piloto, carril), **dónde
+  saldríamos** si paramos ahora o en la vuelta que toca, con quién delante y
+  detrás y si salimos en tráfico, y **la posición tras el ciclo de paradas**:
+  la de verdad, contando las paradas que le quedan a cada rival según su
+  energía y su gasto. En la tabla, coche a coche: en cuántas vueltas lo
+  pillamos o nos pilla, cuándo para, cuánto le costará y si le pasamos o nos
+  pasa (en pista o en boxes). Cuando ya no quedan paradas, dice en qué puesto
+  llegamos y a cuántos segundos del de delante y del de detrás. Probado en una
+  carrera de 6 horas por equipos: la duración de cada parada salió con menos
+  de un segundo de error.
+
+  > **Son estimaciones.** Todo se calcula con lo que ha pasado hasta ese
+  > momento y las predicciones pueden cambiar en cualquier momento por cosas
+  > que nadie controla: accidentes, banderas amarillas, coche de seguridad,
+  > sanciones, averías, la lluvia o un rival que cambia de estrategia. Úsalo
+  > como ayuda, no como verdad. Lo que significa cada dato está explicado
+  > dentro del programa, en *Opciones → Tiempos → Clasificación* y
+  > *Estrategia*.
+- **Frenos** *(nuevo en la 1.11)*: el juego no avisa cuando un disco se gasta
+  o se rompe, y en las carreras largas pasa. El mapa lee el grosor de cada
+  disco, calcula cuánto le queda al ritmo que llevas y avisa **CAMBIA FRENOS**
+  con tiempo, o **FRENO ROTO** con alarma si deja de frenar.
 - **Escáner de circuitos**, para medir una pista nueva desde dentro del juego.
 - **Siete idiomas**: español, inglés, francés, italiano, alemán, portugués y
   polaco.
@@ -214,6 +246,36 @@ It is free. Use it and pass it on to anyone.
   give you that. If rain is coming but has not arrived yet, the bottom line
   says how long is left. Mind you: it is the forecast of **the server you are
   on**, so to see your race's you have to be connected to it.
+- **Live standings** *(new in 1.11)*: a table with every car and **28
+  columns to choose and order**: class and overall position, make, driver,
+  best lap of the car and of the driver, stint average, sectors, gaps, pit
+  stops, penalties, tyres (compound, laps and sets used) and **everyone's fuel
+  and energy**: what they have left, usage per lap and **the lap they have to
+  pit on**. Resize it from the corner and scroll it with the mouse wheel. Every
+  lap of every car is saved to a file that opens in Excel.
+- **Strategy panel** *(new in 1.11)*: what a team asks from the pit wall.
+  **What the next stop will cost us** with what is selected in the pit menu
+  (broken down: energy, tyres, driver, pit lane), **where we would rejoin** if
+  we stop now or on the lap we have to, with who is ahead and behind and
+  whether we come out in traffic, and **the position after the pit cycle**:
+  the real one, counting the stops each rival still needs from its energy and
+  usage. In the table, car by car: in how many laps we catch it or it catches
+  us, when it stops, what it will cost and whether we pass it or it passes us
+  (on track or in the pits). Once no stops are left, it tells you the position
+  you finish in and the gap to the cars ahead and behind. Tested in a 6-hour
+  team race: each stop's duration came out within one second.
+
+  > **These are estimates.** Everything is calculated from what has happened
+  > so far, and the predictions can change at any moment because of things
+  > nobody controls: accidents, yellow flags, safety car, penalties, failures,
+  > rain or a rival changing strategy. Use it as a guide, not as the truth.
+  > What every figure means is explained inside the program, in *Options →
+  > Lap times → Standings* and *Strategy*.
+- **Brakes** *(new in 1.11)*: the game does not warn you when a disc wears
+  out or breaks, and in long races it happens. The map reads each disc's
+  thickness, works out how long it has left at your pace and warns **CHANGE
+  BRAKES** in good time, or **BRAKE FAILURE** with an alarm if it stops
+  braking.
 - **Track scanner**, to measure a new track from inside the game.
 - **Seven languages**: Spanish, English, French, Italian, German, Portuguese and
   Polish.
