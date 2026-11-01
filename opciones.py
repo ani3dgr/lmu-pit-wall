@@ -1145,9 +1145,9 @@ class Opciones:
         nombre del escaneo como argumento (ver arranque() en mapa_pista).
         """
         if rutas.compilado():
-            consola = rutas.datos("MapaLMU-consola.exe")
+            consola = rutas.datos("LMUPitWall-consola.exe")
             if not os.path.isfile(consola):
-                raise IOError("falta MapaLMU-consola.exe al lado del programa")
+                raise IOError("falta LMUPitWall-consola.exe al lado del programa")
             return [consola, os.path.splitext(guion)[0]]
         return [self._interprete(), os.path.join(CARPETA, guion)]
 

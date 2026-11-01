@@ -13,7 +13,7 @@
  "acerca.proyecto": "Strona programu",
  "acerca.reiniciar": "Język zmieni się wszędzie po ponownym uruchomieniu programu.",
  "acerca.sin_enlace": "(wpisz adres w enlaces.py)",
- "acerca.titulo": "Mapa toru dla Le Mans Ultimate",
+ "acerca.titulo": "LMU Pit Wall: ściana boksów dla Le Mans Ultimate",
  "agarre.alta": "Wysoka przyczepność",
  "agarre.baja": "Niska przyczepność",
  "agarre.limpia": "Zielony",
@@ -625,7 +625,7 @@
  "map.esperando_pista": "Czekam, aż wyjedziesz na tor...",
  "map.pausa": "PAUZA",
  "map.sin_escanear": "Tor niezeskanowany:\n%s",
- "map.titulo": "Mapa LMU",
+ "map.titulo": "LMU Pit Wall",
  "map.yo_desconocido": "NIE WIEM, KTORE AUTO JEST TWOJE  -  nacisnij F11",
  "map.yo_sin_confirmar": "AUTO NIEPOTWIERDZONE  -  nacisnij F11",
  "pan.arreglado": "Gotowe. Zamknij grę i uruchom ją ponownie, żeby zmiana zadziałała.",
@@ -1010,5 +1010,5 @@
  "vis.ver_todo": "Pokaż wszystko",
  "vis.vuelta_n": "      Okrążenie %d%s",
  "vis.zoom": "Powiększenie",
- "win.titulo": "Mapa LMU - opcje"
+ "win.titulo": "LMU Pit Wall - opcje"
 }

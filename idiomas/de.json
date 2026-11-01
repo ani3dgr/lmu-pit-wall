@@ -13,7 +13,7 @@
  "acerca.proyecto": "Seite des Programms",
  "acerca.reiniciar": "Die Sprache wechselt überall beim nächsten Start des Programms.",
  "acerca.sin_enlace": "(die Adresse in enlaces.py eintragen)",
- "acerca.titulo": "Streckenkarte für Le Mans Ultimate",
+ "acerca.titulo": "LMU Pit Wall: die Boxenmauer für Le Mans Ultimate",
  "agarre.alta": "Hoher Grip",
  "agarre.baja": "Niedriger Grip",
  "agarre.limpia": "Grün",
@@ -625,7 +625,7 @@
  "map.esperando_pista": "Warte, bis du auf der Strecke bist...",
  "map.pausa": "PAUSE",
  "map.sin_escanear": "Strecke nicht gescannt:\n%s",
- "map.titulo": "LMU-Karte",
+ "map.titulo": "LMU Pit Wall",
  "map.yo_desconocido": "ICH WEISS NICHT, WELCHES DEIN AUTO IST  -  F11 druecken",
  "map.yo_sin_confirmar": "AUTO NICHT BESTAETIGT  -  F11 druecken",
  "pan.arreglado": "Erledigt. Schließ das Spiel und öffne es wieder, damit es wirkt.",
@@ -1010,5 +1010,5 @@
  "vis.ver_todo": "Alles zeigen",
  "vis.vuelta_n": "      Runde %d%s",
  "vis.zoom": "Zoom",
- "win.titulo": "LMU-Karte - Optionen"
+ "win.titulo": "LMU Pit Wall - Optionen"
 }

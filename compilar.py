@@ -7,7 +7,7 @@ Se ejecuta a mano cuando toca sacar una version:
     python compilar.py
 
 Deja en dist/ la carpeta lista y un ZIP al lado. Quien lo descargue solo tiene
-que descomprimirlo donde quiera y abrir MapaLMU.exe: no hay que instalar nada,
+que descomprimirlo donde quiera y abrir LMUPitWall.exe: no hay que instalar nada,
 ni siquiera Python.
 
 QUE VA DENTRO DEL EJECUTABLE Y QUE NO
@@ -25,9 +25,11 @@ import zipfile
 AQUI = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(AQUI, "dist")
 BUILD = os.path.join(AQUI, "build")
-CARPETA_FINAL = os.path.join(DIST, "MapaLMU")
+CARPETA_FINAL = os.path.join(DIST, "LMUPitWall")
+# hasta la 1.11.1 se llamaba MapaLMU: lo del usuario se busca tambien ahi
+CARPETA_VIEJA = os.path.join(DIST, "MapaLMU")
 
-VERSION = "1.11.1"
+VERSION = "1.12"
 
 # Lo que se copia al lado del .exe. Carpetas y archivos sueltos.
 #
@@ -63,7 +65,7 @@ BASURA = ("__pycache__", ".pyc", ".bak", ".antes", ".orig",
           "historial_reglajes.json", "fichas_coches.json")
 
 
-# Lo que en dist/MapaLMU es DEL USUARIO y no del programa. Compilar borra esa
+# Lo que en dist/LMUPitWall es DEL USUARIO y no del programa. Compilar borra esa
 # carpeta entera, asi que esto se aparta antes y se devuelve despues del ZIP.
 # Se aprende por las malas: una compilacion se llevo por delante las vueltas
 # grabadas de una sesion de pruebas, que no estaban en ningun otro sitio.
@@ -85,6 +87,8 @@ def apartar_lo_mio():
     salvados = []
     for cosa in MIO:
         origen = os.path.join(CARPETA_FINAL, cosa)
+        if not os.path.exists(origen):
+            origen = os.path.join(CARPETA_VIEJA, cosa)
         if not os.path.exists(origen):
             continue
         os.makedirs(GUARDADO, exist_ok=True)
@@ -138,7 +142,7 @@ def abierto():
     y cuesta un rato entender que el fallo no estaba en el codigo.
     """
     corriendo = []
-    for nombre in ("MapaLMU.exe", "MapaLMU-consola.exe"):
+    for nombre in ("LMUPitWall.exe", "LMUPitWall-consola.exe", "MapaLMU.exe", "MapaLMU-consola.exe"):
         try:
             salida = subprocess.check_output(
                 ["tasklist", "/fi", "imagename eq " + nombre],
@@ -164,7 +168,7 @@ def compilar():
         if os.path.isdir(carpeta):
             shutil.rmtree(carpeta)
     orden = [sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
-             os.path.join(AQUI, "MapaLMU.spec")]
+             os.path.join(AQUI, "LMUPitWall.spec")]
     if subprocess.call(orden, cwd=AQUI) != 0:
         raise SystemExit("PyInstaller ha fallado")
 
@@ -203,7 +207,7 @@ QUE HAY QUE HACER (dos minutos)
          poner nada encima del juego.
        - Ajustes -> HUD: quita el mapa que trae el juego, o tendras dos.
 
-  3. Abre MapaLMU.exe
+  3. Abre LMUPitWall.exe
 
      La primera vez Windows puede decir "Windows protegio tu PC". Es
      porque el programa no esta firmado (firmarlo cuesta dinero). Pulsa
@@ -213,6 +217,11 @@ SI YA TENIAS UNA VERSION ANTERIOR
 
   Descomprime el ZIP ENCIMA de la carpeta que ya tenias, diciendo que
   si a reemplazar. NO la borres antes.
+
+  SI VIENES DE "MapaLMU" (hasta la 1.11.1 se llamaba asi): copia lo que
+  hay DENTRO de la carpeta LMUPitWall del ZIP dentro de tu carpeta
+  MapaLMU de siempre, diciendo que si a reemplazar. Desde entonces abre
+  LMUPitWall.exe; MapaLMU.exe y MapaLMU-consola.exe ya se pueden borrar.
 
   No pierdes nada de lo tuyo: tus pistas escaneadas, tus vueltas
   grabadas ("sesiones"), los colores, el sitio donde tengas puesto el
@@ -258,7 +267,7 @@ COMPARTIR CIRCUITOS
 DE DONDE SALE ESTO
 
   Pagina del programa, donde esta siempre la ultima version:
-  https://github.com/ani3dgr/mapa-lmu
+  https://github.com/ani3dgr/lmu-pit-wall
 
   Ahi tambien se pueden pedir cosas o avisar de fallos.
 
@@ -273,9 +282,9 @@ Apoya a CicloTracker y nos ayudas a seguir creando proyectos: ciclotracker.com
     # Un boton de revision: si a alguien no le funciona, hace doble clic aqui
     # y manda una foto de lo que sale. Se ve enseguida que le falta.
     lineas = ["@echo off",
-              "title Revision del mapa de pista",
+              "title Revision de LMU Pit Wall",
               'cd /d "%~dp0"',
-              "MapaLMU-consola.exe comprobar"]
+              "LMUPitWall-consola.exe comprobar"]
     ruta = os.path.join(CARPETA_FINAL, "COMPROBAR SI ALGO NO VA.bat")
     with open(ruta, "w", encoding="utf-8", newline="\r\n") as f:
         f.write("\n".join(lineas) + "\n")
@@ -284,7 +293,7 @@ Apoya a CicloTracker y nos ayudas a seguir creando proyectos: ciclotracker.com
 
 def comprimir():
     paso("HACIENDO EL ZIP")
-    nombre = os.path.join(DIST, "MapaLMU-%s.zip" % VERSION)
+    nombre = os.path.join(DIST, "LMUPitWall-%s.zip" % VERSION)
     if os.path.isfile(nombre):
         os.remove(nombre)
     with zipfile.ZipFile(nombre, "w", zipfile.ZIP_DEFLATED) as z:

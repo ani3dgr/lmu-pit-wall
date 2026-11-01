@@ -164,6 +164,14 @@ class Tabla:
         self._pilotos = {}          # clave del coche -> nombres (con su #)
         self.ruedas_garaje = None   # neumaticos sueltos que da el servidor
         self.info = {}              # /rest/watch/sessionInfo
+        # Al pasar de una sesion a otra (clasificacion -> carrera) la historia
+        # del juego SIGUE trayendo las vueltas de la anterior un buen rato
+        # (visto en Barcelona el 01/11/2026: en la vuelta de formacion habia
+        # 151 vueltas de la clasificacion) y se colaban como ritmo de carrera.
+        # Las que habia al cambiar se apuntan aqui y no se vuelven a meter.
+        self._nombre_sesion = None
+        self._viejas = set()        # (slot, vehiculo, vuelta, tiempo) de antes
+        self._marcar_viejas = False
         self.info_sello = 0.0
 
     def arrancar(self):
@@ -172,6 +180,13 @@ class Tabla:
             self._hilo.start()
 
     # ---------------------------------------------------------- apuntar
+    def _vaciar(self):
+        """Lo de la sesion anterior ya no vale."""
+        self._antes, self.historia = {}, {}
+        self._mejor_piloto, self._mejor_coche = {}, {}
+        self._sanciones, self._archivo = {}, None
+        self._pit_en_vuelta = {}
+
     def _apuntar(self, coches):
         """Mira que coches han cerrado vuelta desde la ultima respuesta."""
         # Sesion nueva (los tiempos de la anterior no valen): han cambiado los
@@ -180,10 +195,7 @@ class Tabla:
         vueltas = sum(int(c.get("lapsCompleted") or 0) for c in coches)
         if self._sesion is not None and (firma != self._sesion[0]
                                          or vueltas < self._sesion[1] - 3):
-            self._antes, self.historia = {}, {}
-            self._mejor_piloto, self._mejor_coche = {}, {}
-            self._sanciones, self._archivo = {}, None
-            self._pit_en_vuelta = {}
+            self._vaciar()
         self._sesion = (firma, vueltas)
 
         for c in coches:
@@ -382,14 +394,52 @@ class Tabla:
         seria la mejor). Las demas se dan por buenas. Las de entrada y salida
         de boxes se marcan para que no entren en la media.
         """
+        if self._marcar_viejas:
+            self._marcar_viejas = False
+            for lista in historia.values():
+                for h in lista if isinstance(lista, list) else []:
+                    self._viejas.add((h.get("slotID"), h.get("vehicleName") or "",
+                                      h.get("totalLaps"), h.get("lapTime")))
+            return
         mejores = {_clave(c): _num(c.get("bestLapTime")) for c in self._coches}
+        completadas = {_clave(c): int(c.get("lapsCompleted") or 0) for c in self._coches}
         for lista in historia.values():
             if not isinstance(lista, list):
                 continue
+            # La historia va en orden y la sesion anterior va DELANTE: la
+            # clasificacion llega hasta su vuelta 10 y la carrera vuelve a
+            # empezar desde 0. Lo de antes del ultimo salto atras no es de esta
+            # sesion, y si ya se habia metido (el mapa se abrio en la vuelta de
+            # formacion, por ejemplo) se saca.
+            corte = 0
+            for i in range(1, len(lista)):
+                if int(lista[i].get("totalLaps") or 0) < int(lista[i - 1].get("totalLaps") or 0):
+                    corte = i
+            # Y si trae vueltas que el coche aun no ha dado, la lista entera es
+            # de la sesion anterior: en Barcelona, ya en la vuelta 3 de la
+            # carrera, la historia seguia siendo la de la clasificacion (hasta
+            # la vuelta 10) sin una sola vuelta de carrera.
+            if lista:
+                k0 = (lista[0].get("slotID"), lista[0].get("vehicleName") or "")
+                dadas = completadas.get(k0)
+                if dadas is not None and any(int(h.get("totalLaps") or 0) > dadas + 1
+                                             for h in lista):
+                    corte = len(lista)
+            if corte:
+                for h in lista[:corte]:
+                    k = (h.get("slotID"), h.get("vehicleName") or "")
+                    fuera = (int(h.get("totalLaps") or 0), _num(h.get("lapTime")))
+                    if k in self.historia:
+                        self.historia[k] = [v for v in self.historia[k]
+                                            if not (v.get("de_la_historia")
+                                                    and (v["vuelta"], v["tiempo"]) == fuera)]
+                lista = lista[corte:]
             previa = None
             tocadas = set()
             for h in lista:
                 k = (h.get("slotID"), h.get("vehicleName") or "")
+                if (k[0], k[1], h.get("totalLaps"), h.get("lapTime")) in self._viejas:
+                    continue
                 tiempo = _num(h.get("lapTime"))
                 boxes = bool(h.get("pitting")) or bool(previa and previa.get("pitting"))
                 previa = h
@@ -774,6 +824,15 @@ class Tabla:
             d = self._pedir(URL_INFO)
             if isinstance(d, dict):
                 self.info, self.info_sello = d, time.monotonic()
+                nombre = d.get("session")
+                if nombre and nombre != self._nombre_sesion:
+                    if self._nombre_sesion is not None:
+                        # sesion nueva con el mapa abierto: fuera lo de antes,
+                        # y lo que traiga ahora la historia es de la vieja
+                        self._vaciar()
+                        self._marcar_viejas = True
+                        cuando["historia"] = -999   # pedirla ya
+                    self._nombre_sesion = nombre
         if ahora - cuando.get("sesion", -999) > CADA_SESION:
             cuando["sesion"] = ahora
             d = self._pedir(URL_SESION)

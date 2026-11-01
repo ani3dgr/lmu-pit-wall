@@ -1,12 +1,15 @@
-# Mapa de pista para Le Mans Ultimate
+# LMU Pit Wall
 
-Un mapa que se pone encima del juego y te enseña dónde está cada coche, con
+**El muro de boxes para Le Mans Ultimate** (antes *MapaLMU*): clasificación en directo,
+estrategia de paradas, desgaste de frenos, reglajes y el mapa de pista.
+
+Empezó siendo un mapa que se pone encima del juego y te enseña dónde está cada coche, con
 **tu coche bien visible**, los rivales por colores de categoría, los números y
 nombres de las curvas, y un modo para compararte con el más rápido de tu categoría.
 
 Es gratuito. Úsalo y pásalo a quien quieras.
 
-*(English below — [jump to English](#track-map-for-le-mans-ultimate))*
+*(English below — [jump to English](#lmu-pit-wall-1))*
 
 ---
 
@@ -119,7 +122,12 @@ Es gratuito. Úsalo y pásalo a quien quieras.
 
 **Lo normal: bájate el programa ya montado.** Ve a
 [Releases](../../releases), descarga el `.zip`, descomprímelo **donde quieras**
-y abre `MapaLMU.exe`. No hace falta instalar nada, ni siquiera Python.
+y abre `LMUPitWall.exe`. No hace falta instalar nada, ni siquiera Python.
+
+**Si vienes de MapaLMU** (hasta la 1.11.1 se llamaba así): copia lo que hay
+*dentro* de la carpeta `LMUPitWall` del ZIP en tu carpeta `MapaLMU` de siempre,
+diciendo que sí a reemplazar. Se quedan tus ajustes, vueltas y circuitos. Desde
+entonces abre `LMUPitWall.exe`; `MapaLMU.exe` ya se puede borrar.
 
 **No lo pongas dentro de `Archivos de programa`**: Windows no deja escribir ahí
 y el programa necesita guardar su configuración, tus vueltas y los circuitos
@@ -180,9 +188,12 @@ Merece la pena decirlo, porque explica por qué faltan cosas:
 
 ---
 
-# Track map for Le Mans Ultimate
+# LMU Pit Wall
 
-An overlay map that shows you where every car is, with **your own car clearly
+**The pit wall for Le Mans Ultimate** (formerly *MapaLMU*): live standings, pit
+stop strategy, brake wear, setups and the track map.
+
+It started as an overlay map that shows you where every car is, with **your own car clearly
 visible**, rivals coloured by class, corner numbers and names, and a mode that
 measures you against the fastest car in your own class.
 
@@ -293,7 +304,12 @@ It is free. Use it and pass it on to anyone.
 
 **The normal way: grab the ready-built program.** Go to
 [Releases](../../releases), download the `.zip`, extract it **wherever you
-like** and open `MapaLMU.exe`. Nothing to install, not even Python.
+like** and open `LMUPitWall.exe`. Nothing to install, not even Python.
+
+**Coming from MapaLMU** (its name up to 1.11.1): copy what is *inside* the
+`LMUPitWall` folder of the ZIP into your usual `MapaLMU` folder, saying yes to
+replace. Your settings, laps and tracks are kept. From then on open
+`LMUPitWall.exe`; `MapaLMU.exe` can be deleted.
 
 **Do not put it inside `Program Files`**: Windows will not allow writing there,
 and the program needs to save its settings, your laps and any tracks you scan.

@@ -13,7 +13,7 @@
  "acerca.proyecto": "Página do programa",
  "acerca.reiniciar": "O idioma muda por completo na próxima vez que abrir o programa.",
  "acerca.sin_enlace": "(ponha o endereço em enlaces.py)",
- "acerca.titulo": "Mapa de pista para o Le Mans Ultimate",
+ "acerca.titulo": "LMU Pit Wall: o muro das boxes para o Le Mans Ultimate",
  "agarre.alta": "Aderência alta",
  "agarre.baja": "Aderência baixa",
  "agarre.limpia": "Verde",
@@ -625,7 +625,7 @@
  "map.esperando_pista": "Esperando você entrar na pista...",
  "map.pausa": "PAUSA",
  "map.sin_escanear": "Circuito não escaneado:\n%s",
- "map.titulo": "Mapa LMU",
+ "map.titulo": "LMU Pit Wall",
  "map.yo_desconocido": "NAO SEI QUAL E O TEU CARRO  -  carrega F11",
  "map.yo_sin_confirmar": "CARRO NAO CONFIRMADO  -  carrega F11",
  "pan.arreglado": "Feito. Feche o jogo e abra-o de novo para que tenha efeito.",
@@ -1010,5 +1010,5 @@
  "vis.ver_todo": "Ver tudo",
  "vis.vuelta_n": "      Volta %d%s",
  "vis.zoom": "Zoom",
- "win.titulo": "Mapa LMU - opções"
+ "win.titulo": "LMU Pit Wall - opções"
 }

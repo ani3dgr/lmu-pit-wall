@@ -5,8 +5,8 @@ Receta para compilar el mapa con PyInstaller.
 Salen DOS ejecutables del mismo codigo, compartiendo una sola copia de las
 librerias:
 
-  MapaLMU.exe          sin ventana negra: es el mapa
-  MapaLMU-consola.exe  con ventana negra: los escaneos y el diagnostico
+  LMUPitWall.exe          sin ventana negra: el programa
+  LMUPitWall-consola.exe  con ventana negra: los escaneos y el diagnostico
 
 Lo que NO se mete dentro del ejecutable, a proposito, para que se pueda tocar
 sin recompilar: circuitos/, idiomas/, coches.json y las instrucciones. Eso lo
@@ -82,7 +82,7 @@ exe_mapa = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="MapaLMU",
+    name="LMUPitWall",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -100,7 +100,7 @@ exe_consola = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="MapaLMU-consola",
+    name="LMUPitWall-consola",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -121,5 +121,5 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name="MapaLMU",
+    name="LMUPitWall",
 )

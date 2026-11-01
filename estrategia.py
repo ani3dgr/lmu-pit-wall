@@ -243,6 +243,22 @@ def calcular(tabla, filas, horizonte=None):
         un coche que paraba en boxes seguia saliendo a 20 s cuando ya iba a
         mas de un minuto.
         """
+        # Lo primero, la del propio juego: distancia de cada uno al primero de
+        # su clase, si van en la misma vuelta. Es la que ensena la pantalla
+        # del juego, cambia solo al pasar por los puntos de cronometraje y no
+        # baila. La estimacion de abajo (lo que le falta de vuelta por el
+        # ritmo) daba de 2 a 3 s de error y fluctuaba, porque la velocidad no
+        # es la misma en toda la vuelta (Manuel, Barcelona 01/11/2026).
+        suyo_api, mio_api = f.get("api") or {}, yo.get("api") or {}
+        try:
+            t_suyo = float(suyo_api.get("timeBehindClassLeader"))
+            t_mio = float(mio_api.get("timeBehindClassLeader"))
+            if (int(suyo_api.get("lapsBehindClassLeader") or 0)
+                    == int(mio_api.get("lapsBehindClassLeader") or 0)
+                    and t_suyo >= 0 and t_mio >= 0):
+                return t_suyo - t_mio
+        except (TypeError, ValueError):
+            pass
         ritmo = tabla.ritmo(f["clave"], RITMO_VUELTAS) or ritmo_yo
         m = min(f["vueltas"], yo["vueltas"]) + 1
         mia = cruza(yo, ritmo_yo, m)
@@ -284,9 +300,12 @@ def calcular(tabla, filas, horizonte=None):
                         vuelta = yo["vueltas"] + int(round(x))
                 else:
                     vuelta = "boxes"
+        dif_ritmo = _ritmo_vivo(f, yo, dist, ritmo_yo)
+        if dif_ritmo is None and ritmo:
+            dif_ritmo = ritmo - ritmo_yo
         rivales.append({
             "fila": f, "distancia": dist, "ritmo": ritmo,
-            "dif_ritmo": (ritmo - ritmo_yo) if ritmo else None,
+            "dif_ritmo": dif_ritmo,
             "paradas": paradas, "neta": neta,
             "proyeccion": proyeccion, "prevision": prevision, "vuelta": vuelta,
         })
@@ -335,6 +354,44 @@ def calcular(tabla, filas, horizonte=None):
         "al_parar": _al_parar(tabla, yo, rivales, filas, perdida_yo,
                               perdida_clase, ritmo_yo, largo, perdidas),
     }
+
+
+_brechas = {}       # clave del rival -> [(reloj, distancia), ...]
+
+
+def _ritmo_vivo(f, yo, dist, ritmo_yo):
+    """
+    Lo que nos gana (-) o pierde (+) por vuelta AHORA, sacado de como cambia
+    la distancia con el en la ultima vuelta, o None si aun no se sabe.
+
+    La mediana de las ultimas 10 vueltas solo cambiaba al cruzar la meta y
+    muy despacio; Manuel queria verlo moverse con la distancia (Barcelona,
+    01/11/2026). Se compara con la distancia de hace una vuelta entera y no
+    menos, porque cada coche es mas rapido en unas zonas que en otras: con
+    medio minuto, uno que frena mejor parecia que volaba en el sector lento.
+    La distancia del juego cambia en cada punto de cronometraje, asi que esto
+    tambien. Si cualquiera de los dos entra en boxes se empieza de cero.
+    """
+    k = f["clave"]
+    if (dist is None or not ritmo_yo or f.get("boxes_ya") or yo.get("boxes_ya")
+            or f.get("en_boxes") or yo.get("en_boxes")):
+        _brechas.pop(k, None)
+        return None
+    ahora = time.monotonic()
+    lista = _brechas.setdefault(k, [])
+    if not lista or lista[-1][1] != dist:
+        lista.append((ahora, dist))
+    while lista and ahora - lista[0][0] > 2.5 * ritmo_yo:
+        lista.pop(0)
+    # la muestra mas reciente que tenga ya una vuelta
+    vieja = None
+    for t, d in lista:
+        if ahora - t >= 0.95 * ritmo_yo:
+            vieja = (t, d)
+    if vieja is None:
+        return None
+    vivo = (dist - vieja[1]) / (ahora - vieja[0]) * ritmo_yo
+    return vivo if abs(vivo) < 5.0 else None      # un trompo o una sancion
 
 
 def _si_paramos(tabla, yo, rivales, filas, perdida, perdida_otros, ritmo,

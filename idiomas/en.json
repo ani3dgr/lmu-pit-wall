@@ -13,7 +13,7 @@
  "acerca.proyecto": "Program page",
  "acerca.reiniciar": "The language changes everywhere next time you open the program.",
  "acerca.sin_enlace": "(put the address in enlaces.py)",
- "acerca.titulo": "Track map for Le Mans Ultimate",
+ "acerca.titulo": "LMU Pit Wall: the pit wall for Le Mans Ultimate",
  "agarre.alta": "High grip",
  "agarre.baja": "Low grip",
  "agarre.limpia": "Green",
@@ -625,7 +625,7 @@
  "map.esperando_pista": "Waiting for you to get on track...",
  "map.pausa": "PAUSED",
  "map.sin_escanear": "Track not scanned:\n%s",
- "map.titulo": "LMU Map",
+ "map.titulo": "LMU Pit Wall",
  "map.yo_desconocido": "YOUR CAR IS UNKNOWN  -  press F11",
  "map.yo_sin_confirmar": "CAR NOT CONFIRMED  -  press F11",
  "pan.arreglado": "Done. Close the game and open it again for it to take effect.",
@@ -1010,5 +1010,5 @@
  "vis.ver_todo": "Fit all",
  "vis.vuelta_n": "      Lap %d%s",
  "vis.zoom": "Zoom",
- "win.titulo": "LMU Map - options"
+ "win.titulo": "LMU Pit Wall - options"
 }

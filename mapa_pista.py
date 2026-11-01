@@ -1536,7 +1536,7 @@ def main():
     demo = "--demo" in sys.argv
     fuente = Demo() if demo else Juego()
     threading.Thread(target=leer_catalogo_de_coches, daemon=True).start()
-    print("Mapa LMU %s. F9 = ocultar/mostrar, F10 = opciones."
+    print("LMU Pit Wall %s. F9 = ocultar/mostrar, F10 = opciones."
           % ("(DEMO)" if demo else ""))
     Mapa(fuente).ejecutar()
 
@@ -1547,7 +1547,7 @@ def comprobar():
     """
     Revision rapida sin necesidad del juego: donde esta cada cosa y si se lee.
 
-    Se pide con   MapaLMU-consola.exe comprobar
+    Se pide con   LMUPitWall-consola.exe comprobar
     """
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")

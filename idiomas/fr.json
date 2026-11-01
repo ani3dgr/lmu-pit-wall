@@ -13,7 +13,7 @@
  "acerca.proyecto": "Page du programme",
  "acerca.reiniciar": "La langue change partout au prochain lancement du programme.",
  "acerca.sin_enlace": "(mettez l'adresse dans enlaces.py)",
- "acerca.titulo": "Carte du circuit pour Le Mans Ultimate",
+ "acerca.titulo": "LMU Pit Wall : le muret des stands pour Le Mans Ultimate",
  "agarre.alta": "Adhérence haute",
  "agarre.baja": "Adhérence faible",
  "agarre.limpia": "Vert",
@@ -625,7 +625,7 @@
  "map.esperando_pista": "En attente de votre entrée en piste...",
  "map.pausa": "PAUSE",
  "map.sin_escanear": "Circuit non scanné :\n%s",
- "map.titulo": "Carte LMU",
+ "map.titulo": "LMU Pit Wall",
  "map.yo_desconocido": "JE NE SAIS PAS QUELLE EST TA VOITURE  -  appuie F11",
  "map.yo_sin_confirmar": "VOITURE NON CONFIRMEE  -  appuie F11",
  "pan.arreglado": "C'est fait. Fermez le jeu et rouvrez-le pour que ça prenne effet.",
@@ -1010,5 +1010,5 @@
  "vis.ver_todo": "Tout voir",
  "vis.vuelta_n": "      Tour %d%s",
  "vis.zoom": "Zoom",
- "win.titulo": "Carte LMU - options"
+ "win.titulo": "LMU Pit Wall - options"
 }
