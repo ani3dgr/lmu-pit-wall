@@ -49,7 +49,8 @@ CADA_INFO = 2.0
 # Con cuantas vueltas (las ultimas, sin repostar por medio) se hace la media
 # del gasto: pocas, para que siga al ritmo de ahora (lluvia, coche de
 # seguridad, ahorro), pero no tan pocas que una vuelta rara la tuerza.
-VUELTAS_GASTO = 5
+# Eran 5; con el lift and coast tardaba demasiado en enterarse (01/11/2026).
+VUELTAS_GASTO = 3
 CADA_SESION = 60.0
 # Cada vuelta de cada coche, tambien las anuladas, en un CSV por sesion. Para
 # estudiar despues la fiabilidad de cada piloto y para predecir tiempos.
@@ -526,10 +527,18 @@ class Tabla:
         """
         A que ritmo va AHORA: la mediana de sus ultimas vueltas limpias (sin
         boxes). Mediana y no media para que una vuelta con un trompo o
-        doblando a alguien no la tuerza. Cuentan aunque cambie el piloto: lo
-        que interesa es a que va el coche.
+        doblando a alguien no la tuerza.
+
+        Solo las del piloto que lleva el coche AHORA, en cuanto tiene 3: cada
+        piloto va a su ritmo (lo pidio Manuel, 01/11/2026, en Barcelona).
+        Hasta entonces, las del coche, que es mejor que nada.
         """
-        limpias = [v["tiempo"] for v in self.historia.get(k, []) if not v["boxes"]]
+        vs = self.historia.get(k, [])
+        limpias = [v["tiempo"] for v in vs if not v["boxes"]]
+        piloto = vs[-1].get("piloto") if vs else None
+        suyas = [v["tiempo"] for v in vs if not v["boxes"] and piloto and v.get("piloto") == piloto]
+        if len(suyas) >= 3:
+            limpias = suyas
         limpias = limpias[-cuantas:]
         if len(limpias) < 2:
             return None

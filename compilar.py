@@ -29,7 +29,7 @@ CARPETA_FINAL = os.path.join(DIST, "LMUPitWall")
 # hasta la 1.11.1 se llamaba MapaLMU: lo del usuario se busca tambien ahi
 CARPETA_VIEJA = os.path.join(DIST, "MapaLMU")
 
-VERSION = "1.12"
+VERSION = "1.12.1"
 
 # Lo que se copia al lado del .exe. Carpetas y archivos sueltos.
 #

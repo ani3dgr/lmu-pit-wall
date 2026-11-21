@@ -264,6 +264,15 @@ def buscar_circuito(circuitos, nombre_juego, largo_juego=None):
     # todos los que casan por nombre, sin mirar el sufijo del largo
     candidatos = [c for c in circuitos
                   if base_de(c) == n or n in base_de(c) or base_de(c) in n]
+    if not candidatos and " - " in (nombre_juego or ""):
+        # El mismo circuito puede salir con otro apellido segun el servidor:
+        # Paul Ricard se escaneo como "Paul Ricard ELMS" y el 14/11/2026 el
+        # juego lo publico como "Paul Ricard - 1A-V2" (mismo trazado, medido).
+        # Si el nombre entero no casa, se prueba con lo que va antes del guion
+        # y, si hay varios, decide el largo como siempre.
+        n2 = normaliza(nombre_juego.split(" - ")[0])
+        if n2:
+            candidatos = [c for c in circuitos if base_de(c).startswith(n2)]
     if not candidatos:
         return None, None
     if len(candidatos) == 1:

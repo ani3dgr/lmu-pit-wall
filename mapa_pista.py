@@ -1326,7 +1326,8 @@ class Mapa:
         yo = next((c for c in (coches or []) if c.get("es_yo")), None)
         filas = clasificacion.tabla.filas(yo, False)
         datos = estrategia.calcular_todo(clasificacion.tabla, filas,
-                                         int(self.cfg.get("estr_minutos", 0)))
+                                         int(self.cfg.get("estr_minutos", 0)),
+                                         float(self.cfg.get("plan_ruedas_min", 60)) / 100.0)
         estrategia.apuntar(datos)
         estrategia.vigilar_paradas(clasificacion.tabla, datos)
         self.estrategia.pintar(datos, forzar=True)

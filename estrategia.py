@@ -249,12 +249,15 @@ def calcular(tabla, filas, horizonte=None):
         # baila. La estimacion de abajo (lo que le falta de vuelta por el
         # ritmo) daba de 2 a 3 s de error y fluctuaba, porque la velocidad no
         # es la misma en toda la vuelta (Manuel, Barcelona 01/11/2026).
+        # OJO: solo vale en la vuelta del lider. A los doblados el juego les
+        # pone 0.0 de tiempo (Paul Ricard 4 h, 21/11/2026: todos los que iban
+        # a 3 vueltas, nosotros incluidos, salian a +0.0 y sin ritmo).
         suyo_api, mio_api = f.get("api") or {}, yo.get("api") or {}
         try:
             t_suyo = float(suyo_api.get("timeBehindClassLeader"))
             t_mio = float(mio_api.get("timeBehindClassLeader"))
-            if (int(suyo_api.get("lapsBehindClassLeader") or 0)
-                    == int(mio_api.get("lapsBehindClassLeader") or 0)
+            if (int(suyo_api.get("lapsBehindClassLeader") or 0) == 0
+                    and int(mio_api.get("lapsBehindClassLeader") or 0) == 0
                     and t_suyo >= 0 and t_mio >= 0):
                 return t_suyo - t_mio
         except (TypeError, ValueError):
@@ -531,10 +534,11 @@ def _coma(x):
     return "" if x is None else ("%.1f" % x).replace(".", ",")
 
 
-def calcular_todo(tabla, filas, minutos):
+def calcular_todo(tabla, filas, minutos, limite_ruedas=0.60):
     """
     Lo del panel: la prediccion a `minutos` vista (0 = tras el ciclo de
-    paradas, ver `ciclo`) y, aparte, la de hasta el final (en "final").
+    paradas, ver `ciclo`) y, aparte, la de hasta el final (en "final"), y el
+    plan de combustible y ruedas (plan.py) en "plan".
     """
     horizonte = minutos * 60 if minutos else ciclo(tabla, filas)
     d = calcular(tabla, filas, horizonte)
@@ -544,6 +548,11 @@ def calcular_todo(tabla, filas, minutos):
     d["final"] = final
     d["paradas_final"] = final.get("paradas") if final else None
     d["es_ciclo"] = not minutos
+    try:
+        import plan
+        d["plan"] = plan.calcular(tabla, final or d, limite_ruedas)
+    except Exception:
+        d["plan"] = None
     return d
 
 

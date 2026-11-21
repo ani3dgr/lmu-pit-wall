@@ -220,7 +220,10 @@ class Panel(base.Panel):
                                            final["pasamos"], final["nos_pasan"])
             color = VERDE if cambio > 0 else (ROJO if cambio < 0 else None)
             salida.append((texto, color, True))
+            salida.extend(self._plan(d, solo_ruedas=True))
             return salida
+
+        salida.extend(self._plan(d))
 
         mas = T("est.paradas_final") % (
             "?" if d["paradas_final"] is None else d["paradas_final"])
@@ -252,6 +255,82 @@ class Panel(base.Panel):
                 texto = texto.replace("{min}", str(int((d["horizonte"] or 0) // 60)))
             color = VERDE if cambio > 0 else (ROJO if cambio < 0 else None)
             salida.append((texto, color, True))
+        return salida
+
+    def _plan(self, d, solo_ruedas=False):
+        """
+        Las cuentas de combustible y ruedas (plan.py): cuanto ahorrar para
+        hacer una parada menos y como repartir los juegos de ruedas.
+        """
+        pl = d.get("plan") or {}
+        salida = []
+        c = pl.get("combustible")
+        if c and not solo_ruedas:
+            if c["paradas"] == 0:
+                salida.append((T("plan.sobra") % c["sobra"], VERDE, True))
+            else:
+                linea = T("plan.comb") % (c["paradas"], c["gasto"] * 100.0)
+                if c["ahorro"] <= 0:
+                    pass
+                elif c["posible"]:
+                    linea += "  ·  " + T("plan.una_menos") % (
+                        c["paradas"] - 1, c["objetivo"] * 100.0, c["ahorro"] * 100.0)
+                    if c.get("compensa"):
+                        linea += "  ·  " + T("plan.compensa") % c["compensa"]
+                else:
+                    linea += "  ·  " + T("plan.no_da") % (c["ahorro"] * 100.0)
+                salida.append((linea, AMARILLO if c["posible"] else None, True))
+                u = c.get("ultima")
+                if u:
+                    import plan
+                    linea = T("plan.ultima") % (u["hasta"] * 100.0, u["vueltas_despues"],
+                                                plan.VUELTAS_SOBRA)
+                    color = AMARILLO
+                    if u["menu"] is not None and c.get("que") == "energia":
+                        linea += "  ·  " + T("plan.en_menu") % (u["menu"] * 100.0)
+                        color = ROJO if u["menu"] < u["hasta"] - 0.005 else VERDE
+                    salida.append((linea, color, True))
+
+        r = pl.get("ruedas")
+        if r:
+            lim = int(round(r["limite"] * 100))
+            partes = []
+            if r.get("peor") is not None:
+                trozo = T("plan.peor") % (r["peor"] * 100.0)
+                if r.get("aguantan_estas") is not None:
+                    trozo += " " + T("plan.llega") % (lim, r["aguantan_estas"])
+                partes.append(trozo)
+            if r.get("aguanta_juego"):
+                trozo = T("plan.juego") % r["aguanta_juego"]
+                if r.get("stints_juego"):
+                    trozo += " " + T("plan.stints") % r["stints_juego"]
+                partes.append(trozo)
+            else:
+                partes.append(T("plan.midiendo"))
+            q = r.get("juegos_quedan")
+            if q is not None:
+                partes.append(T("plan.quedan") % ("%.1f" % q).rstrip("0").rstrip("."))
+            linea = T("plan.ruedas") + " " + "  ·  ".join(partes)
+            salida.append((linea, None, False))
+
+            # el reparto: cuantas paradas con ruedas nuevas
+            h, n = r.get("hacen_falta"), r.get("paradas")
+            if h is not None:
+                color = None
+                if h == 0:
+                    texto = T("plan.sin_cambiar") % lim
+                elif q is not None and h > q + 1e-9:
+                    texto = T("plan.no_llegan") % (h, ("%.1f" % q).rstrip("0").rstrip("."), lim)
+                    color = ROJO
+                elif n is not None and h > n:
+                    texto = T("plan.no_llegan_paradas") % (n, lim)
+                    color = ROJO
+                elif n is not None and h < n:
+                    texto = T("plan.reparto") % (h, h, n - h, lim)
+                    color = VERDE
+                else:
+                    texto = T("plan.todas") % (h, lim)
+                salida.append((texto, color, True))
         return salida
 
     def _ancho_total(self, lineas, esc):
