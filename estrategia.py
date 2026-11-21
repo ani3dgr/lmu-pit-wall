@@ -262,6 +262,14 @@ def calcular(tabla, filas, horizonte=None):
                 return t_suyo - t_mio
         except (TypeError, ValueError):
             pass
+        # Si no, como el juego: los dos coches en el ultimo punto de
+        # cronometraje (meta, sector 1, sector 2) por el que han pasado los
+        # dos. Lo de abajo estima la vuelta en curso por el ritmo y se iba
+        # hasta 5 s (Paul Ricard, 21/11/2026).
+        marcas = getattr(tabla, "distancia_marcas", None)
+        d = marcas(f["clave"], yo["clave"]) if marcas else None
+        if d is not None:
+            return d
         ritmo = tabla.ritmo(f["clave"], RITMO_VUELTAS) or ritmo_yo
         m = min(f["vueltas"], yo["vueltas"]) + 1
         mia = cruza(yo, ritmo_yo, m)
@@ -534,7 +542,7 @@ def _coma(x):
     return "" if x is None else ("%.1f" % x).replace(".", ",")
 
 
-def calcular_todo(tabla, filas, minutos, limite_ruedas=0.60):
+def calcular_todo(tabla, filas, minutos, limite_ruedas=0.60, ruedas_carrera=0):
     """
     Lo del panel: la prediccion a `minutos` vista (0 = tras el ciclo de
     paradas, ver `ciclo`) y, aparte, la de hasta el final (en "final"), y el
@@ -550,7 +558,7 @@ def calcular_todo(tabla, filas, minutos, limite_ruedas=0.60):
     d["es_ciclo"] = not minutos
     try:
         import plan
-        d["plan"] = plan.calcular(tabla, final or d, limite_ruedas)
+        d["plan"] = plan.calcular(tabla, final or d, limite_ruedas, ruedas_carrera)
     except Exception:
         d["plan"] = None
     return d

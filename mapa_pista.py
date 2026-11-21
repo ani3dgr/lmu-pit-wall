@@ -173,6 +173,8 @@ POR_DEFECTO = {
     "estr_filas": 15,
     "estr_ancho": 0,
     "estr_minutos": 0,              # 0 = tras el ciclo de paradas
+    "plan_ruedas_min": 60,          # % minimo de la peor rueda (plan de carrera)
+    "plan_ruedas_carrera": 0,       # ruedas nuevas al empezar la carrera (0 = no se sabe)
     "estr_opacidad": 0.95,
     "estr_fondo": True,
     "estr_color_fondo": "#0d1116",
@@ -1327,7 +1329,8 @@ class Mapa:
         filas = clasificacion.tabla.filas(yo, False)
         datos = estrategia.calcular_todo(clasificacion.tabla, filas,
                                          int(self.cfg.get("estr_minutos", 0)),
-                                         float(self.cfg.get("plan_ruedas_min", 60)) / 100.0)
+                                         float(self.cfg.get("plan_ruedas_min", 60)) / 100.0,
+                                         int(self.cfg.get("plan_ruedas_carrera", 0)))
         estrategia.apuntar(datos)
         estrategia.vigilar_paradas(clasificacion.tabla, datos)
         self.estrategia.pintar(datos, forzar=True)

@@ -16,6 +16,7 @@ juego con el desgaste medido en pista.
 Son estimaciones, como el resto del panel: se rehacen solas cada vuelta.
 """
 import math
+import time
 
 MARGEN = 0.02          # 2 % de deposito que se deja sin contar, por si acaso
 AHORRO_MAX = 0.15      # mas de esto por vuelta no se saca con lift and coast
@@ -138,7 +139,36 @@ def ultima_parada(d, largo, gasto, quedan, faltan):
             "menu": menu if isinstance(menu, (int, float)) else None}
 
 
-def ruedas(d, tabla, limite, paradas):
+def nuevas_usadas(tabla, yo):
+    """
+    Ruedas NUEVAS que ha montado nuestro coche en la carrera, contando las de
+    la salida: las paradas del juego (/rest/strategy/overall) dicen rueda a
+    rueda si era nueva. None si no se sabe.
+    """
+    try:
+        paradas = tabla._paradas_de(yo.get("api") or {})
+    except Exception:
+        return None
+    if not paradas:
+        return None
+    # Si lo hemos visto parado en boxes y el juego aun no ha apuntado esa
+    # parada, no se sabe: "?" mejor que un juego de mas. Tras 15 min se da
+    # por buena la lista (seria un stop and go o algo sin ruedas).
+    visto = getattr(tabla, "parado_en", {}).get(yo.get("clave"))
+    if visto:
+        vuelta, cuando = visto
+        apuntada = any(int((p or {}).get("lap") or 0) >= vuelta - 1 for p in paradas[1:])
+        if not apuntada and time.monotonic() - cuando < 15 * 60:
+            return "pendiente"
+    n = 0
+    for p in paradas:
+        for r in ((p or {}).get("tyres") or {}).values():
+            if isinstance(r, dict) and r.get("new"):
+                n += 1
+    return n
+
+
+def ruedas(d, tabla, limite, paradas, ruedas_carrera=0):
     """
     {"desgaste", "peor", "aguanta_juego", "aguantan_estas", "stints_juego",
      "juegos_quedan", "hacen_falta"} con lo que se sepa, o None.
@@ -149,10 +179,17 @@ def ruedas(d, tabla, limite, paradas):
     peor = _peor_rueda()
     salida = {"peor": peor, "desgaste": desgaste, "limite": limite}
 
-    garaje = getattr(tabla, "ruedas_garaje", None)
-    n = yo.get("neumaticos") or {}
-    if garaje and n.get("juegos") is not None and not n.get("desconocido"):
-        salida["juegos_quedan"] = max(0.0, garaje / 4.0 - n["juegos"])
+    # Las que quedan: las de la carrera (las pone el usuario en Opciones; el
+    # juego lo ensena en su ventana de neumaticos, "8 Ruedas nuevas", pero no
+    # lo publica en la API) menos las nuevas que ya se han montado. El ajuste
+    # del servidor (SESSSET_tires_available_in_garage, 56) es para TODO el
+    # fin de semana y daba "quedan 11 juegos" con 2 (Paul Ricard, 21/11/2026).
+    if ruedas_carrera:
+        usadas = nuevas_usadas(tabla, yo)
+        if usadas == "pendiente":
+            salida["juegos_pendiente"] = True
+        elif usadas is not None:
+            salida["juegos_quedan"] = max(0.0, (ruedas_carrera - usadas) / 4.0)
 
     if desgaste and desgaste > 0:
         salida["aguanta_juego"] = (1.0 - limite) / desgaste
@@ -169,15 +206,16 @@ def ruedas(d, tabla, limite, paradas):
             salida["hacen_falta"] = (0 if resto <= 0 else
                                      int(math.ceil(resto / salida["aguanta_juego"])))
     salida["paradas"] = paradas
-    if peor is None and desgaste is None and "juegos_quedan" not in salida:
+    if (peor is None and desgaste is None and "juegos_quedan" not in salida
+            and not salida.get("juegos_pendiente")):
         return None
     return salida
 
 
-def calcular(tabla, d, limite=0.60):
+def calcular(tabla, d, limite=0.60, ruedas_carrera=0):
     if not d or d.get("falta"):
         return None
     largo = tabla.info.get("lapDistance")
     c = combustible(d, largo)
     paradas = c["paradas"] if c else None
-    return {"combustible": c, "ruedas": ruedas(d, tabla, limite, paradas)}
+    return {"combustible": c, "ruedas": ruedas(d, tabla, limite, paradas, ruedas_carrera)}

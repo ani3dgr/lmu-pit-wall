@@ -648,6 +648,8 @@ class Opciones:
         self._titulo(m, fila, T("est.tit_panel"))
         self._interruptor(m, fila, T("est.opt.ver"), "estr_ver")
         self._deslizador(m, fila, T("est.opt.minutos"), "estr_minutos", 0, 120)
+        self._deslizador(m, fila, T("est.opt.ruedas_carrera"), "plan_ruedas_carrera", 0, 80)
+        self._deslizador(m, fila, T("est.opt.ruedas_min"), "plan_ruedas_min", 30, 90)
         self._deslizador(m, fila, T("cla.opt.filas"), "estr_filas", 5, 40)
         self._deslizador(m, fila, T("clima.opt.tam"), "estr_tam", 60, 220)
         self._deslizador(m, fila, T("asp.opacidad"), "estr_opacidad", 0.2, 1.0, 2)

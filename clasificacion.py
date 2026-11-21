@@ -134,6 +134,11 @@ def _num(v):
     return v if v > 0 else None
 
 
+# Vueltas de puntos de cronometraje que se guardan por coche: de sobra para
+# comparar con el que nos saca varias vueltas.
+MARCAS_VUELTAS = 15
+
+
 class Tabla:
     """
     Pregunta a la API en su hilo; el mapa solo recoge lo ultimo que haya.
@@ -161,6 +166,8 @@ class Tabla:
         self._sanciones = {}        # (clave del coche, piloto) -> sanciones
         self._archivo = None        # el CSV de esta sesion
         self._pit_en_vuelta = {}    # clave -> paso por boxes en esta vuelta
+        self.marcas = {}            # clave -> {(vuelta, punto): hora de sesion}
+        self.parado_en = {}         # clave -> (vuelta, reloj) de la ultima vez parado en boxes
         self._paradas = []          # [[equipo, [paradas]], ...] de la API
         self._pilotos = {}          # clave del coche -> nombres (con su #)
         self.ruedas_garaje = None   # neumaticos sueltos que da el servidor
@@ -187,6 +194,47 @@ class Tabla:
         self._mejor_piloto, self._mejor_coche = {}, {}
         self._sanciones, self._archivo = {}, None
         self._pit_en_vuelta = {}
+        self.marcas = {}
+
+    def _marcar(self, c, k):
+        """
+        A que hora de sesion paso el coche por cada punto de cronometraje:
+        la meta (punto 0) y el final de los sectores 1 y 2 (puntos 1 y 2).
+        Es lo que usa el juego para las distancias: compara a los dos coches
+        en el ultimo punto por el que han pasado los dos. Estimar lo que le
+        falta de vuelta a cada uno por el ritmo daba hasta 5 s de error
+        (Manuel, Paul Ricard 21/11/2026).
+        """
+        inicio = _num(c.get("lapStartET"))
+        if inicio is None:
+            return
+        v = int(c.get("lapsCompleted") or 0)
+        m = self.marcas.setdefault(k, {})
+        m[(v, 0)] = inicio
+        sector = str(c.get("sector") or "")
+        # Solo si ya va por detras de ese punto: al cruzar la meta, que no se
+        # cuele el sector de la vuelta anterior con la hora de la nueva.
+        for punto, campo, despues in ((1, "currentSectorTime1", ("SECTOR2", "SECTOR3")),
+                                      (2, "currentSectorTime2", ("SECTOR3",))):
+            t = _num(c.get(campo))
+            if t and t > 0 and sector in despues:
+                m[(v, punto)] = inicio + t
+        if len(m) > 3 * MARCAS_VUELTAS + 3:
+            for clave in sorted(m)[:len(m) - 3 * MARCAS_VUELTAS]:
+                del m[clave]
+
+    def distancia_marcas(self, suyo, mio):
+        """
+        Segundos que el coche `suyo` va por detras del `mio` (negativo: por
+        delante) en el ultimo punto de cronometraje por el que han pasado los
+        dos, contando la MISMA vuelta. None si no hay punto comun.
+        """
+        a, b = self.marcas.get(suyo) or {}, self.marcas.get(mio) or {}
+        comunes = set(a) & set(b)
+        if not comunes:
+            return None
+        p = max(comunes)
+        return a[p] - b[p]
 
     def _apuntar(self, coches):
         """Mira que coches han cerrado vuelta desde la ultima respuesta."""
@@ -201,6 +249,16 @@ class Tabla:
 
         for c in coches:
             k = _clave(c)
+            try:
+                self._marcar(c, k)
+            except Exception:
+                pass
+            # Parado en su box: el juego tarda unos minutos en meter la
+            # parada en /rest/strategy/overall (Paul Ricard, 21/11/2026: una
+            # parada de la vuelta 119 aparecio a los 3-4 min), y mientras
+            # tanto las ruedas nuevas que quedan salen de mas.
+            if str(c.get("pitState") or "").upper() == "STOPPED":
+                self.parado_en[k] = (int(c.get("lapsCompleted") or 0), time.monotonic())
             antes = self._antes.get(k)
             self._antes[k] = c
             # Si paso por boxes en algun momento de la vuelta: al cerrarla ya

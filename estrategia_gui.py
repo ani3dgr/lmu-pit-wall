@@ -310,6 +310,8 @@ class Panel(base.Panel):
             q = r.get("juegos_quedan")
             if q is not None:
                 partes.append(T("plan.quedan") % ("%.1f" % q).rstrip("0").rstrip("."))
+            elif r.get("juegos_pendiente"):
+                partes.append(T("plan.quedan") % "?")
             linea = T("plan.ruedas") + " " + "  ·  ".join(partes)
             salida.append((linea, None, False))
 
